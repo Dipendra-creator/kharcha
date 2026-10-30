@@ -1,0 +1,26 @@
+mobile/src/features/onboarding/step.tsx
+  s_1f356cd81d88ca::t_33b5322d52f756 5,62
+mobile/app.json
+  s_1f356cd81d88ca::t_82b21a50d4ad05 74-75
+mobile/src/app/report/[date].tsx
+  s_1f356cd81d88ca::t_33b5322d52f756 14,193
+mobile/src/components/screen.tsx
+  s_1f356cd81d88ca::t_33b5322d52f756 55,61-69
+  s_1f356cd81d88ca::t_26434bd43094ad 70-72
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "844487f3824e438a1050fb094658f7d5682c1b7d",
+  "prompts": {},
+  "sessions": {
+    "s_1f356cd81d88ca": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8258777d-c34a-4193-b818-54b667f9dab9",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Dipendra Bhardwaj <dipu.sharma.1122@gmail.com>"
+    }
+  }
+}
