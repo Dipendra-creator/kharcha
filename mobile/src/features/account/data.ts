@@ -9,16 +9,15 @@ import { cancelAllNotifications } from '@/features/notifications/nightly';
 import { api } from '@/lib/api';
 import { bumpData, useApp } from '@/store/app-store';
 
-import { authToken, clearAuthToken } from './session';
+import { authToken, canUseServer, clearAuthToken } from './session';
 
 /** DPDP data export: everything Kharcha holds about you, as JSON, via the share sheet. */
 export async function exportMyData(): Promise<void> {
   const { profile, settings, consentAt } = useApp.getState();
-  const token = authToken();
   let server: unknown = null;
-  if (token) {
+  if (canUseServer()) {
     try {
-      server = await api.exportAll(token);
+      server = await api.exportAll(authToken());
     } catch {
       server = { error: 'Server unreachable; local data only.' };
     }
@@ -48,8 +47,7 @@ export async function exportMyData(): Promise<void> {
  * data is never silently left behind.
  */
 export async function deleteEverything(opts: { localOnly?: boolean } = {}): Promise<void> {
-  const token = authToken();
-  if (token && !opts.localOnly) await api.deleteAccount(token);
+  if (canUseServer() && !opts.localOnly) await api.deleteAccount(authToken());
   wipeDatabase();
   await cancelAllNotifications().catch(() => {});
   await clearAuthToken();

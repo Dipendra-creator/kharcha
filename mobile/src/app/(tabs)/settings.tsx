@@ -17,7 +17,7 @@ export default function SettingsScreen() {
   const profile = useApp((s) => s.profile);
   const settings = useApp((s) => s.settings);
   const setSettings = useApp((s) => s.setSettings);
-  const account = useApp((s) => s.account);
+  const serverOn = useApp((s) => s.sync.serverOpen || !!s.account);
   const gmail = useApp((s) => s.sync.gmail);
   const budget = useCycleBudget();
   const reviewCount = useDbQuery(() => countReview(), []);
@@ -78,7 +78,7 @@ export default function SettingsScreen() {
           <Row
             icon="sparkles-outline"
             title="AI verdicts"
-            subtitle={account ? 'Fresh Hinglish lines from the server LLM' : 'Sign in under Sources to enable'}
+            subtitle={serverOn ? 'Fresh Hinglish lines from the server LLM' : 'Connect to the server under Sources'}
             toggle={{ value: settings.aiVerdicts, onChange: (aiVerdicts) => setSettings({ aiVerdicts }) }}
             last
           />

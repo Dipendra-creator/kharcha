@@ -39,6 +39,8 @@ export type SyncState = {
   notifCursor: number | null;
   /** Server change sequence already pulled. */
   serverCursor: number;
+  /** The server runs without sign-in (KHARCHA_AUTH_MODE=none); learned from /healthz. */
+  serverOpen: boolean;
   gmail: { connected: boolean; email: string | null };
 };
 
@@ -78,7 +80,7 @@ export const DEFAULT_SETTINGS: Settings = {
   aiVerdicts: true,
 };
 
-const DEFAULT_SYNC: SyncState = { lastSyncAt: null, smsCursor: null, notifCursor: null, serverCursor: 0, gmail: { connected: false, email: null } };
+const DEFAULT_SYNC: SyncState = { lastSyncAt: null, smsCursor: null, notifCursor: null, serverCursor: 0, serverOpen: false, gmail: { connected: false, email: null } };
 
 // The kv-store has a synchronous API, so the store hydrates before the first render.
 const kvStorage = createJSONStorage(() => ({

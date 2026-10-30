@@ -1,5 +1,5 @@
 import { getTxn, listUnsynced, markSynced, upsertMany } from '@/db/transactions';
-import { authToken } from '@/features/account/session';
+import { authToken, canUseServer, refreshServerMode } from '@/features/account/session';
 import { api, ApiError, type WireTxn } from '@/lib/api';
 import type { Txn } from '@/lib/types';
 import { useApp } from '@/store/app-store';
@@ -9,7 +9,7 @@ import type { SyncStep } from './sync';
 const PAGE = 500;
 
 /** Pulls server changes (email receipts, SMS↔email merges) since the stored cursor. */
-export async function pullChanges(token: string): Promise<number> {
+export async function pullChanges(token: string | null): Promise<number> {
   let pulled = 0;
   for (;;) {
     const { serverCursor } = useApp.getState().sync;
@@ -34,8 +34,9 @@ export async function pullChanges(token: string): Promise<number> {
  * The Gmail job runs on the server, so its results are pulled again shortly after.
  */
 export const serverSyncStep: SyncStep = async (summary) => {
+  await refreshServerMode();
+  if (!canUseServer()) return;
   const token = authToken();
-  if (!useApp.getState().account || !token) return;
   try {
     const unsynced = listUnsynced();
     for (let i = 0; i < unsynced.length; i += PAGE) {
@@ -54,7 +55,7 @@ export const serverSyncStep: SyncStep = async (summary) => {
     summary.pulled += await pullChanges(token);
   } catch (e) {
     if (e instanceof ApiError && e.status === 401) {
-      summary.errors.push('Signed out of the Kharcha server — sign in again under Sources');
+      summary.errors.push('The Kharcha server needs sign-in — sign in under Settings → Sources');
       return;
     }
     summary.errors.push(`Server sync: ${e instanceof Error ? e.message : String(e)}`);

@@ -1,3 +1,4 @@
 server/.env
 server/bin/
 .DS_Store
+server/deploy/.env

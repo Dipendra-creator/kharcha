@@ -2,7 +2,7 @@ import { CryptoDigestAlgorithm, digestStringAsync } from 'expo-crypto';
 
 import KharchaSms from '@modules/kharcha-sms';
 
-import { authToken } from '@/features/account/session';
+import { authToken, canUseServer } from '@/features/account/session';
 import { finishSyncRun, listRules, startSyncRun, type MerchantRule } from '@/db/meta';
 import { insertMany } from '@/db/transactions';
 import type { SyncStep } from '@/features/sync/sync';
@@ -52,7 +52,6 @@ function fromExtracted(p: ParsedSms, e: Extracted): ParsedSms {
  */
 export const smsSyncStep: SyncStep = async (summary) => {
   const { settings, sync, setSync } = useApp.getState();
-  const token = authToken();
   if (!smsSupported || !KharchaSms) return;
   const viaSms = settings.smsEnabled && (await hasSmsPermission());
   const viaNotifications = !viaSms && settings.notificationFallback && KharchaSms.hasNotificationAccess();
@@ -83,10 +82,10 @@ export const smsSyncStep: SyncStep = async (summary) => {
 
   // Second opinion from the LLM for low-confidence parses. Text is redacted before it leaves the phone.
   const unsure = drafts.filter((d) => d.parsed.confidence < CONFIDENT);
-  if (unsure.length && token) {
+  if (unsure.length && canUseServer()) {
     try {
       const { results } = await api.extract(
-        token,
+        authToken(),
         unsure.map((d) => ({ id: d.ref, kind: 'sms', sender: senderHeader(d.sender), text: redact(d.body), receivedAt: d.date })),
       );
       const byId = new Map(results.map((r) => [r.id, r]));

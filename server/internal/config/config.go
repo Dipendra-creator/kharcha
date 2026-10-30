@@ -19,6 +19,9 @@ type Config struct {
 	// EncryptionKey (32 bytes) encrypts Gmail refresh tokens at rest.
 	EncryptionKey []byte
 	DevLogin      bool
+	// NoAuth (KHARCHA_AUTH_MODE=none) skips sign-in: every request acts as one
+	// built-in owner account. Only for a private, single-user deployment.
+	NoAuth bool
 
 	// GoogleClientIDs are accepted audiences for Google ID tokens (web, Android, iOS clients).
 	GoogleClientIDs []string
@@ -46,6 +49,7 @@ func Load() (*Config, error) {
 		DatabaseURL:           env("DATABASE_URL", "postgres://kharcha:kharcha@localhost:5432/kharcha?sslmode=disable"),
 		RedisURL:              os.Getenv("REDIS_URL"),
 		DevLogin:              env("KHARCHA_DEV_LOGIN", "false") == "true",
+		NoAuth:                env("KHARCHA_AUTH_MODE", "token") == "none",
 		GoogleClientIDs:       list(os.Getenv("GOOGLE_CLIENT_IDS")),
 		GoogleWebClientID:     os.Getenv("GOOGLE_WEB_CLIENT_ID"),
 		GoogleWebClientSecret: os.Getenv("GOOGLE_WEB_CLIENT_SECRET"),

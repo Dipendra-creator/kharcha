@@ -58,6 +58,19 @@ To try SMS↔email merging without Gmail, send a bank SMS to the emulator (`adb 
 go run ./cmd/kharcha-dev -email you@example.com -merchant Blinkit -category groceries -amount 820 -items "Milk,Bread"
 ```
 
+### Deploy (Docker)
+
+```bash
+git clone https://github.com/Dipendra-creator/kharcha.git && cd kharcha/server
+cp deploy/.env.example deploy/.env      # fill POSTGRES_PASSWORD, KHARCHA_JWT_SECRET, KHARCHA_ENCRYPTION_KEY (openssl rand -base64 32)
+docker compose -f deploy/compose.yml up -d --build
+curl http://localhost:8090/healthz
+```
+
+Update with `git pull && docker compose -f deploy/compose.yml up -d --build`. Postgres has no host port; only the API is published (`KHARCHA_PORT`, default 8090).
+
+`KHARCHA_AUTH_MODE=none` turns sign-in off: every request uses one built-in owner account, and the app detects this from `/healthz` and syncs without signing in. Anyone who can reach the port can read and delete that data, so use it only for a private deployment; set `KHARCHA_AUTH_MODE=token` to require sign-in again. The app's API URL defaults to the deployed server (`mobile/src/lib/api.ts`); override with `EXPO_PUBLIC_API_URL`.
+
 ### LLM providers
 
 `KHARCHA_LLM_PROVIDERS` lists providers in the order they're tried; one without credentials is skipped.

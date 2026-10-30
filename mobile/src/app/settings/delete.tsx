@@ -13,7 +13,7 @@ import { radii, spacing } from '@/theme/tokens';
 
 export default function DeleteSheet() {
   const { c } = useTheme();
-  const account = useApp((s) => s.account);
+  const serverOn = useApp((s) => s.sync.serverOpen || !!s.account);
   const [busy, setBusy] = useState(false);
   const [serverFailed, setServerFailed] = useState(false);
 
@@ -37,7 +37,7 @@ export default function DeleteSheet() {
         <Ionicons name="warning" size={22} color={c.over} />
         <AppText variant="caption" style={{ flex: 1 }}>
           This removes every transaction, rule, report and setting on this phone
-          {account ? ', plus your Kharcha account and all server data, and revokes Gmail access' : ''}. It can&apos;t be undone.
+          {serverOn ? ', plus all your data on the Kharcha server, and revokes Gmail access' : ''}. It can&apos;t be undone.
         </AppText>
       </View>
       {serverFailed ? (

@@ -26,6 +26,7 @@ export default function SourcesScreen() {
   const lastSyncAt = useApp((s) => s.sync.lastSyncAt);
   const gmail = useApp((s) => s.sync.gmail);
   const account = useApp((s) => s.account);
+  const serverOpen = useApp((s) => s.sync.serverOpen);
   const running = useSyncStatus((s) => s.running);
   const runs = useDbQuery(() => recentSyncRuns(8), []);
   const [health, setHealth] = useState<Health>(null);
@@ -39,7 +40,10 @@ export default function SourcesScreen() {
   useEffect(() => {
     api
       .health()
-      .then(setHealth)
+      .then((h) => {
+        setHealth(h);
+        useApp.getState().setSync({ serverOpen: h.auth === 'none' });
+      })
       .catch(() => setHealth('offline'));
   }, []);
 
@@ -108,7 +112,9 @@ export default function SourcesScreen() {
         <AppText variant="caption" color={health === 'offline' ? 'over' : 'textMuted'}>
           Server: {serverLine}
         </AppText>
-        {account ? (
+        {serverOpen && !account ? (
+          <Row icon="cloud-done-outline" title="Connected" subtitle="This server doesn't need sign-in" last />
+        ) : account ? (
           <>
             <Row icon="person-circle-outline" title={account.name || "Signed in"} subtitle={account.email} last />
             <Button title="Sign out" variant="secondary" size="sm" loading={busy === 'signout'} onPress={() => act('signout', signOut)} />
@@ -151,12 +157,7 @@ export default function SourcesScreen() {
               variant="danger"
               size="sm"
               loading={busy === 'gmail-off'}
-              onPress={() =>
-                act('gmail-off', async () => {
-                  const token = authToken();
-                  if (token) await disconnectGmail(token);
-                })
-              }
+              onPress={() => act('gmail-off', () => disconnectGmail(authToken()))}
             />
           </>
         ) : (

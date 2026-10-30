@@ -45,6 +45,16 @@ func (s *Store) UpsertUser(ctx context.Context, newID, email string, name *strin
 	return u, err
 }
 
+// UpsertUserWithID creates a user with a fixed id (no-op if it exists).
+func (s *Store) UpsertUserWithID(ctx context.Context, id, email string, name *string) (User, error) {
+	var u User
+	err := s.DB.QueryRow(ctx, `
+		INSERT INTO users (id, email, name) VALUES ($1, lower($2), $3)
+		ON CONFLICT (email) DO UPDATE SET name = COALESCE(EXCLUDED.name, users.name)
+		RETURNING id, email, name, created_at`, id, email, name).Scan(&u.ID, &u.Email, &u.Name, &u.CreatedAt)
+	return u, err
+}
+
 func (s *Store) GetUser(ctx context.Context, id string) (User, error) {
 	var u User
 	err := s.DB.QueryRow(ctx, `SELECT id, email, name, created_at FROM users WHERE id = $1`, id).

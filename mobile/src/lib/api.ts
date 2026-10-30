@@ -1,13 +1,11 @@
-import { Platform } from 'react-native';
-
 import type { Category, PaymentMethod, Txn } from './types';
 
 /**
- * Kharcha API (Go server). Set EXPO_PUBLIC_API_URL for devices; the defaults
- * reach a server on the dev machine from the Android emulator / iOS simulator.
+ * Kharcha API (Go server). Defaults to the deployed server; set
+ * EXPO_PUBLIC_API_URL to point elsewhere (e.g. http://10.0.2.2:8080 for a
+ * server on your dev machine from the Android emulator).
  */
-export const API_URL =
-  process.env.EXPO_PUBLIC_API_URL ?? (Platform.OS === 'android' ? 'http://10.0.2.2:8080' : 'http://localhost:8080');
+export const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://80.225.253.222:8090';
 
 export class ApiError extends Error {
   constructor(
@@ -18,7 +16,7 @@ export class ApiError extends Error {
   }
 }
 
-async function request<T>(path: string, opts: { method?: string; token?: string; body?: unknown; timeoutMs?: number } = {}): Promise<T> {
+async function request<T>(path: string, opts: { method?: string; token?: string | null; body?: unknown; timeoutMs?: number } = {}): Promise<T> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), opts.timeoutMs ?? 20_000);
   try {
@@ -78,25 +76,25 @@ export type WireTxn = Omit<Txn, 'syncedAt'>;
 export type GmailStatus = { connected: boolean; email: string | null; lastSyncAt: number | null; senders: string[] };
 
 export const api = {
-  health: () => request<{ ok: boolean; llm: string; gmail?: boolean }>('/healthz', { timeoutMs: 4000 }),
+  health: () => request<{ ok: boolean; llm: string; gmail?: boolean; auth?: 'none' | 'token' }>('/healthz', { timeoutMs: 4000 }),
   devLogin: (email: string, name?: string) => request<AuthResponse>('/v1/auth/dev', { body: { email, name } }),
   googleLogin: (idToken: string) => request<AuthResponse>('/v1/auth/google', { body: { idToken } }),
 
-  extract: (token: string, items: ExtractItem[]) =>
+  extract: (token: string | null, items: ExtractItem[]) =>
     request<{ results: Extracted[] }>('/v1/extract', { token, body: { items }, timeoutMs: 90_000 }),
-  roast: (token: string, body: RoastRequest) => request<{ verdict: string }>('/v1/roast', { token, body, timeoutMs: 30_000 }),
+  roast: (token: string | null, body: RoastRequest) => request<{ verdict: string }>('/v1/roast', { token, body, timeoutMs: 30_000 }),
 
-  pushTransactions: (token: string, txns: WireTxn[]) =>
+  pushTransactions: (token: string | null, txns: WireTxn[]) =>
     request<{ accepted: string[] }>('/v1/transactions/batch', { token, body: { transactions: txns } }),
-  pullTransactions: (token: string, since: number) =>
+  pullTransactions: (token: string | null, since: number) =>
     request<{ transactions: WireTxn[]; cursor: number }>(`/v1/transactions?since=${since}`, { token }),
 
-  gmailConnect: (token: string, serverAuthCode: string, redirectUri?: string) =>
+  gmailConnect: (token: string | null, serverAuthCode: string, redirectUri?: string) =>
     request<GmailStatus>('/v1/gmail/connect', { token, body: { code: serverAuthCode, redirectUri } }),
-  gmailStatus: (token: string) => request<GmailStatus>('/v1/gmail/status', { token }),
-  gmailSync: (token: string) => request<{ queued: boolean }>('/v1/gmail/sync', { token, body: {} }),
-  gmailDisconnect: (token: string) => request<{ ok: boolean }>('/v1/gmail', { token, method: 'DELETE' }),
+  gmailStatus: (token: string | null) => request<GmailStatus>('/v1/gmail/status', { token }),
+  gmailSync: (token: string | null) => request<{ queued: boolean }>('/v1/gmail/sync', { token, body: {} }),
+  gmailDisconnect: (token: string | null) => request<{ ok: boolean }>('/v1/gmail', { token, method: 'DELETE' }),
 
-  exportAll: (token: string) => request<Record<string, unknown>>('/v1/me/export', { token }),
-  deleteAccount: (token: string) => request<{ ok: boolean }>('/v1/me', { token, method: 'DELETE' }),
+  exportAll: (token: string | null) => request<Record<string, unknown>>('/v1/me/export', { token }),
+  deleteAccount: (token: string | null) => request<{ ok: boolean }>('/v1/me', { token, method: 'DELETE' }),
 };

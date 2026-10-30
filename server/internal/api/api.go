@@ -32,6 +32,8 @@ type Server struct {
 	Log             *slog.Logger
 	DevLogin        bool
 	GoogleClientIDs []string
+	// OwnerID, when set, is used for every request and no token is required (KHARCHA_AUTH_MODE=none).
+	OwnerID string
 }
 
 func (s *Server) Routes() http.Handler {
@@ -61,6 +63,10 @@ func userID(r *http.Request) string { return r.Context().Value(ctxKey{}).(string
 
 func (s *Server) authed(h http.HandlerFunc) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if s.OwnerID != "" {
+			h(w, r.WithContext(context.WithValue(r.Context(), ctxKey{}, s.OwnerID)))
+			return
+		}
 		token, ok := strings.CutPrefix(r.Header.Get("Authorization"), "Bearer ")
 		if !ok {
 			writeErr(w, http.StatusUnauthorized, "sign in required")
@@ -122,10 +128,23 @@ func (s *Server) internal(w http.ResponseWriter, err error) {
 	writeErr(w, http.StatusInternalServerError, "something went wrong")
 }
 
+// ownerEmail identifies the single account used when auth is off.
+const ownerEmail = "owner@kharcha.local"
+
+// EnsureOwner returns the id of the built-in owner account, creating it if needed.
+func EnsureOwner(ctx context.Context, st *store.Store) (string, error) {
+	u, err := st.UpsertUser(ctx, ids.New(), ownerEmail, nil)
+	return u.ID, err
+}
+
 // ── handlers ─────────────────────────────────────────────────────────────────
 
 func (s *Server) health(w http.ResponseWriter, r *http.Request) {
-	writeJSON(w, http.StatusOK, map[string]any{"ok": true, "llm": s.LLM.Chain.Names(), "gmail": s.Gmail.Configured()})
+	auth := "token"
+	if s.OwnerID != "" {
+		auth = "none"
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"ok": true, "llm": s.LLM.Chain.Names(), "gmail": s.Gmail.Configured(), "auth": auth})
 }
 
 type authResponse struct {
@@ -328,6 +347,13 @@ func (s *Server) deleteMe(w http.ResponseWriter, r *http.Request) {
 	if err := s.Store.DeleteUser(r.Context(), userID(r)); err != nil {
 		s.internal(w, err)
 		return
+	}
+	if s.OwnerID != "" {
+		// Recreate the empty owner so the open server keeps working.
+		if _, err := s.Store.UpsertUserWithID(r.Context(), s.OwnerID, ownerEmail, nil); err != nil {
+			s.internal(w, err)
+			return
+		}
 	}
 	writeJSON(w, http.StatusOK, map[string]bool{"ok": true})
 }

@@ -13,6 +13,7 @@ import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { migrate } from '@/db/client';
+import { refreshServerMode } from '@/features/account/session';
 import { configureNotifications } from '@/features/notifications/nightly';
 import { useNightlyScheduler, useNotificationRouting } from '@/features/notifications/use-nightly';
 import { applyBackgroundSync } from '@/features/sync/background';
@@ -59,6 +60,9 @@ function AppNavigator() {
   useEffect(() => {
     applyBackgroundSync(onboarded && backgroundSync).catch(() => {});
   }, [onboarded, backgroundSync]);
+  useEffect(() => {
+    refreshServerMode();
+  }, []);
 
   const base = scheme === 'dark' ? DarkTheme : DefaultTheme;
   const navTheme = {

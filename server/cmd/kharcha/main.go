@@ -87,6 +87,14 @@ func run(log *slog.Logger) error {
 		ClientID: cfg.GoogleWebClientID, Secret: cfg.GoogleWebClientSecret, Lookback: cfg.EmailLookback, Log: log,
 	}
 
+	var ownerID string
+	if cfg.NoAuth {
+		if ownerID, err = api.EnsureOwner(ctx, db); err != nil {
+			return err
+		}
+		log.Warn("KHARCHA_AUTH_MODE=none: no sign-in, every request uses the owner account", "owner", ownerID)
+	}
+
 	go jobs.Run(ctx, cfg.WorkerCount, func(ctx context.Context, j queue.Job) error {
 		if j.Kind != "gmail" {
 			return nil
@@ -101,7 +109,7 @@ func run(log *slog.Logger) error {
 		Addr: cfg.Addr,
 		Handler: (&api.Server{
 			Store: db, Tokens: auth.Tokens{Secret: cfg.JWTSecret}, LLM: svc, Gmail: syncer, Ingest: ing,
-			Queue: jobs, Log: log, DevLogin: cfg.DevLogin, GoogleClientIDs: cfg.GoogleClientIDs,
+			Queue: jobs, Log: log, DevLogin: cfg.DevLogin, GoogleClientIDs: cfg.GoogleClientIDs, OwnerID: ownerID,
 		}).Routes(),
 		ReadHeaderTimeout: 10 * time.Second,
 		WriteTimeout:      3 * time.Minute,
@@ -112,7 +120,7 @@ func run(log *slog.Logger) error {
 		defer cancel()
 		_ = srv.Shutdown(shutdown)
 	}()
-	log.Info("kharcha api listening", "addr", cfg.Addr, "llm", chain.Names(), "gmail", syncer.Configured(), "devLogin", cfg.DevLogin)
+	log.Info("kharcha api listening", "addr", cfg.Addr, "llm", chain.Names(), "gmail", syncer.Configured(), "devLogin", cfg.DevLogin, "noAuth", cfg.NoAuth)
 	if err := srv.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 		return err
 	}

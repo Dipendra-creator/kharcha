@@ -11,8 +11,7 @@ import { useApp } from '@/store/app-store';
  * (keep the on-device line) when signed out, offline, or roasts are off.
  */
 export function useAiVerdict(report: NightlyReport, enabled: boolean): string | null {
-  const signedIn = useApp((s) => !!s.account);
-  const token = signedIn ? authToken() : null;
+  const serverOn = useApp((s) => s.sync.serverOpen || !!s.account);
   const aiVerdicts = useApp((s) => s.settings.aiVerdicts);
   const intensity = useApp((s) => s.settings.roast);
   const [verdict, setVerdict] = useState<{ key: string; text: string } | null>(null);
@@ -22,10 +21,10 @@ export function useAiVerdict(report: NightlyReport, enabled: boolean): string | 
   const { dayKey, budget, spent, topCategory, biggest, quickOrders } = report;
 
   useEffect(() => {
-    if (!enabled || !token || !aiVerdicts || intensity === 'off' || spent <= 0) return;
+    if (!enabled || !serverOn || !aiVerdicts || intensity === 'off' || spent <= 0) return;
     let cancelled = false;
     api
-      .roast(token, {
+      .roast(authToken(), {
         date: dayKey,
         intensity,
         budget: Math.round(budget),
@@ -44,7 +43,7 @@ export function useAiVerdict(report: NightlyReport, enabled: boolean): string | 
     };
     // `key` captures the inputs that should trigger a new verdict.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key, enabled, token, aiVerdicts]);
+  }, [key, enabled, serverOn, aiVerdicts]);
 
   return verdict?.key === key ? verdict.text : null;
 }

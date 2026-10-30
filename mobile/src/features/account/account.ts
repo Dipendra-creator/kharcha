@@ -66,7 +66,7 @@ export async function devSignIn(email: string): Promise<void> {
   await finish(await api.devLogin(email.trim(), name));
 }
 
-export async function disconnectGmail(token: string): Promise<void> {
+export async function disconnectGmail(token: string | null): Promise<void> {
   await api.gmailDisconnect(token);
   useApp.getState().setSync({ gmail: { connected: false, email: null } });
 }
