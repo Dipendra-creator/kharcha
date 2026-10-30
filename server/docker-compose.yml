@@ -1,0 +1,19 @@
+# Local dependencies for the Kharcha API: `docker compose up -d`
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: kharcha
+      POSTGRES_PASSWORD: kharcha
+      POSTGRES_DB: kharcha
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kharcha"]
+      interval: 5s
+      retries: 10
+  redis:
+    image: redis:7
+    ports: ["6379:6379"]
+volumes:
+  pgdata:
