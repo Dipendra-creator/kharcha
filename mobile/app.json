@@ -36,7 +36,8 @@
       "blockedPermissions": [
         "android.permission.RECEIVE_SMS",
         "android.permission.SEND_SMS"
-      ]
+      ],
+      "versionCode": 1
     },
     "web": {
       "output": "server",
@@ -73,7 +74,8 @@
             "usesCleartextTraffic": true
           }
         }
-      ]
+      ],
+      "./plugins/with-release-signing"
     ],
     "experiments": {
       "typedRoutes": true,

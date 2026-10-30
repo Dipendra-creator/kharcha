@@ -39,6 +39,21 @@ npx expo run:ios              # iOS: no SMS; Gmail + manual
 
 Checks: `npm test` (Jest: budget, parser, roast, insights, subscriptions, contrast), `npx tsc --noEmit`, `npx expo lint`.
 
+### Android release build
+
+The latest APK is attached to [GitHub Releases](https://github.com/Dipendra-creator/kharcha/releases). Install it on an Android phone (allow "install unknown apps" for your browser or file manager); it talks to the deployed API at `http://80.225.253.222:8090`.
+
+To build one yourself:
+
+```bash
+cd mobile
+npx expo prebuild --platform android
+cd android && ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a,armeabi-v7a
+# → android/app/build/outputs/apk/release/app-release.apk
+```
+
+Release builds are signed by `plugins/with-release-signing.js` with the upload key named in `~/.gradle/gradle.properties` (`KHARCHA_UPLOAD_STORE_FILE`, `KHARCHA_UPLOAD_STORE_PASSWORD`, `KHARCHA_UPLOAD_KEY_ALIAS`, `KHARCHA_UPLOAD_KEY_PASSWORD`). The key never goes in the repo. Every update must be signed with the same key, or Android refuses to install it over the old app; without these properties the build falls back to the debug key. Bump `version` and `android.versionCode` in `app.json` for each release.
+
 ### Server
 
 ```bash
