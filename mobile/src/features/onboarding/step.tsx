@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { StatusBarScrim } from '@/components/screen';
 import { AppText } from '@/components/text';
 import { Button, IconButton } from '@/components/ui';
 import { useTheme } from '@/theme/theme';
@@ -58,6 +59,7 @@ export function OnboardingStep({
       <View style={{ paddingHorizontal: spacing.xl, paddingBottom: insets.bottom + spacing.lg, paddingTop: spacing.sm }}>
         <Button title={cta} onPress={onNext} disabled={nextDisabled} />
       </View>
+      <StatusBarScrim />
     </KeyboardAvoidingView>
   );
 }

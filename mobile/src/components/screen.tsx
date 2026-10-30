@@ -52,13 +52,21 @@ export function Screen({ children, tabs, scroll = true, refreshing, onRefresh, c
       ) : (
         <View style={[{ flex: 1 }, padding, contentStyle]}>{children}</View>
       )}
-      {/* Keeps scrolled content from running under the status bar. */}
-      <View
-        pointerEvents="none"
-        style={{ position: 'absolute', top: 0, left: 0, right: 0, height: insets.top, backgroundColor: withAlpha(c.bg, 0.96) }}
-      />
+      <StatusBarScrim />
       {overlay}
     </View>
+  );
+}
+
+/** Keeps scrolled content from running under the status bar. Render last, over the scroll view. */
+export function StatusBarScrim() {
+  const { c } = useTheme();
+  const insets = useSafeAreaInsets();
+  return (
+    <View
+      pointerEvents="none"
+      style={{ position: 'absolute', top: 0, left: 0, right: 0, height: insets.top, backgroundColor: withAlpha(c.bg, 0.96) }}
+    />
   );
 }
 

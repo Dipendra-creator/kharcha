@@ -11,6 +11,7 @@ import { captureRef } from 'react-native-view-shot';
 import { stateColor } from '@/components/budget-ring';
 import { ProgressBar } from '@/components/charts';
 import { Money } from '@/components/money';
+import { StatusBarScrim } from '@/components/screen';
 import { AppText } from '@/components/text';
 import { MerchantAvatar } from '@/components/txn-row';
 import { Button, IconButton } from '@/components/ui';
@@ -189,6 +190,7 @@ export default function ReportScreen() {
 
         <Button title="Share to story" icon="logo-instagram" onPress={share} loading={sharing} style={{ marginTop: spacing.xxl }} />
       </ScrollView>
+      <StatusBarScrim />
     </View>
   );
 }
