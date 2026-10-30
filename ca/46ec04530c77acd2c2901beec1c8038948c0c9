@@ -1,0 +1,283 @@
+mobile/.gitignore
+  s_1f356cd81d88ca::t_216dfe3fb7a500 1-51
+.gitignore
+  s_1f356cd81d88ca::t_08dc1cc927604f 1-3
+README.md
+  s_1f356cd81d88ca::t_e373d786c4536c 1-103
+mobile/app.config.ts
+  s_1f356cd81d88ca::t_fe06df04aada14 1-18
+mobile/app.json
+  s_1f356cd81d88ca::t_619031c0d15675 1-73
+mobile/eslint.config.js
+  s_1f356cd81d88ca::t_e8e72267c60cb6 1-10
+mobile/modules/kharcha-sms/android/build.gradle
+  s_1f356cd81d88ca::t_97743a4dc61bf4 1-18
+mobile/modules/kharcha-sms/android/src/main/java/app/kharcha/sms/KharchaSmsModule.kt
+  s_1f356cd81d88ca::t_97c220f45a21d2 1-98
+mobile/modules/kharcha-sms/expo-module.config.json
+  s_1f356cd81d88ca::t_bf7d15e29b0f34 1-9
+mobile/modules/kharcha-sms/index.ts
+  s_1f356cd81d88ca::t_fb51a6d5fabb22 1-4
+mobile/modules/kharcha-sms/ios/KharchaSms.podspec
+  s_1f356cd81d88ca::t_7414228671299e 1-23
+mobile/modules/kharcha-sms/ios/KharchaSmsModule.swift
+  s_1f356cd81d88ca::t_fe338e341c9f1a 1-20
+mobile/modules/kharcha-sms/src/KharchaSmsModule.ts
+  s_1f356cd81d88ca::t_580f49a1274ddd 1-18
+mobile/modules/kharcha-sms/src/KharchaSmsModule.web.ts
+  s_1f356cd81d88ca::t_e3498e0c83d789 1-26
+mobile/package-lock.json
+  s_1f356cd81d88ca::t_c13a30063aec58 1-20345
+mobile/package.json
+  s_1f356cd81d88ca::t_31dcf751a6f9d3 1-75
+mobile/src/app/(tabs)/index.tsx
+  s_1f356cd81d88ca::t_6fce856f7e77f8 1-301
+mobile/src/app/(tabs)/insights.tsx
+  s_1f356cd81d88ca::t_f896bc73c2c41f 1-159
+mobile/src/app/_layout.tsx
+  s_1f356cd81d88ca::t_816708386b6875 1-97
+mobile/src/app/add.tsx
+  s_1f356cd81d88ca::t_8dcb72b1e37e9e 1-247
+mobile/src/app/onboarding/fixed-costs.tsx
+  s_1f356cd81d88ca::t_bdc444eca83253 1-46
+mobile/src/app/onboarding/index.tsx
+  s_1f356cd81d88ca::t_fba83d45c52e69 1-144
+mobile/src/app/onboarding/permissions.tsx
+  s_1f356cd81d88ca::t_74dc173982e416 1-151
+mobile/src/app/report/[date].tsx
+  s_1f356cd81d88ca::t_b65bc66da5fafa 1-233
+mobile/src/app/settings/sources.tsx
+  s_1f356cd81d88ca::t_317f300b80525a 1-218
+mobile/src/components/budget-ring.tsx
+  s_1f356cd81d88ca::t_5b28dc2d6efb45 1-51
+mobile/src/components/charts.tsx
+  s_1f356cd81d88ca::t_570d6a43ff2a3a 1-189
+mobile/src/components/glass-tab-bar.tsx
+  s_1f356cd81d88ca::t_af3e395ed687d1 1-93
+mobile/src/components/money.tsx
+  s_1f356cd81d88ca::t_58677750f7b8dc 1-95
+mobile/src/components/screen.tsx
+  s_1f356cd81d88ca::t_2c68be9c5d6b89 1-99
+mobile/src/components/txn-row.tsx
+  s_1f356cd81d88ca::t_a2e250cd5d412f 1-135
+mobile/src/components/ui.tsx
+  s_1f356cd81d88ca::t_9a835d8a5a04f0 1-406
+mobile/src/db/client.ts
+  s_1f356cd81d88ca::t_1cc9642d41f3f3 1-103
+mobile/src/db/hooks.ts
+  s_1f356cd81d88ca::t_9c3d16027229ad 1-88
+mobile/src/db/meta.ts
+  s_1f356cd81d88ca::t_bfd977f889de16 1-195
+mobile/src/db/transactions.ts
+  s_1f356cd81d88ca::t_ca1bedadbcf2cf 1-247
+mobile/src/features/account/account.ts
+  s_1f356cd81d88ca::t_0fcc636f6c7bcc 1-79
+mobile/src/features/account/data.ts
+  s_1f356cd81d88ca::t_eba1b0fbedb2b2 1-59
+mobile/src/features/budget/__tests__/budget.test.ts
+  s_1f356cd81d88ca::t_a2b64a97dde7f8 1-126
+mobile/src/features/budget/budget.ts
+  s_1f356cd81d88ca::t_8521d6736b403e 1-122
+mobile/src/features/notifications/nightly.ts
+  s_1f356cd81d88ca::t_35bf2345885e20 1-83
+mobile/src/features/report/share-card.tsx
+  s_1f356cd81d88ca::t_176d0a0b7052f9 1-91
+mobile/src/features/roast/use-ai-verdict.ts
+  s_1f356cd81d88ca::t_775e90102de7f6 1-50
+mobile/src/features/sms/__fixtures__/sms.ts
+  s_1f356cd81d88ca::t_fe4bc8d0c820cf 1-193
+mobile/src/features/sms/__tests__/parser.test.ts
+  s_1f356cd81d88ca::t_5fb90e0f459f99 1-101
+mobile/src/features/sms/parser.ts
+  s_1f356cd81d88ca::t_ce29b2230630d4 1-259
+mobile/src/features/sms/redact.ts
+  s_1f356cd81d88ca::t_d3db9b6e5d2791 1-25
+mobile/src/features/sms/sms-sync.ts
+  s_1f356cd81d88ca::t_c5e1b7891f6062 1-137
+mobile/src/features/sync/sources.ts
+  s_1f356cd81d88ca::t_e3456d788da681 1-11
+mobile/src/lib/api.ts
+  s_1f356cd81d88ca::t_04a5ec9adf07f2 1-102
+mobile/src/lib/merchants.ts
+  s_1f356cd81d88ca::t_a1c3b6a11e8eef 1-103
+mobile/src/lib/types.ts
+  s_1f356cd81d88ca::t_5f9c94498c023f 1-47
+mobile/src/store/app-store.ts
+  s_1f356cd81d88ca::t_308803a6624435 1-154
+mobile/src/theme/tokens.ts
+  s_1f356cd81d88ca::t_4ec2d62e152d64 1-168
+mobile/tsconfig.json
+  s_1f356cd81d88ca::t_1eeec609578763 1-26
+server/go.mod
+  s_1f356cd81d88ca::t_d6fc8e6d98523e 1-56
+server/go.sum
+  s_1f356cd81d88ca::t_c3043f8d3dd889 1-182
+server/internal/api/api.go
+  s_1f356cd81d88ca::t_29178e4305ade0 1-333
+server/internal/config/config.go
+  s_1f356cd81d88ca::t_f9d07aa6a22bc2 1-123
+server/internal/gmail/sync.go
+  s_1f356cd81d88ca::t_a3c0d5ce22a95b 1-275
+server/internal/ingest/ingest_test.go
+  s_1f356cd81d88ca::t_938ced1f9642e8 1-71
+server/internal/llm/service.go
+  s_1f356cd81d88ca::t_1e52a7614799fd 1-223
+server/internal/redact/redact.go
+  s_1f356cd81d88ca::t_48c7851f4025bd 1-43
+server/internal/store/migrations/001_init.sql
+  s_1f356cd81d88ca::t_b24dd18c733478 1-106
+server/internal/store/transactions.go
+  s_1f356cd81d88ca::t_01c92db5f0699d 1-182
+mobile/README.md
+  s_1f356cd81d88ca::t_6023d95695ff7f 1-9
+docs/play-store-sms-declaration.md
+  s_1f356cd81d88ca::t_4f15a99d05ee3e 1-26
+mobile/.claude/settings.json
+  s_1f356cd81d88ca::t_212a6156f765ef 1-5
+mobile/.env.example
+  s_1f356cd81d88ca::t_fa6d9ece7585c7 1-10
+mobile/.vscode/extensions.json
+  s_1f356cd81d88ca::t_aa9a4dc1d3dd96 1
+mobile/.vscode/settings.json
+  s_1f356cd81d88ca::t_f97f1a5d9cbfb8 1-7
+mobile/AGENTS.md
+  s_1f356cd81d88ca::t_473007d1cba98c 1-41
+mobile/modules/kharcha-sms/android/src/main/AndroidManifest.xml
+  s_1f356cd81d88ca::t_9996bc602493e3 1-14
+mobile/modules/kharcha-sms/android/src/main/java/app/kharcha/sms/KharchaNotificationListener.kt
+  s_1f356cd81d88ca::t_37e73bfce29db1 1-87
+mobile/modules/kharcha-sms/src/KharchaSms.types.ts
+  s_1f356cd81d88ca::t_5454df0cb323ab 1-8
+mobile/src/app/(tabs)/_layout.tsx
+  s_1f356cd81d88ca::t_3f4611d5c43321 1-18
+mobile/src/app/(tabs)/settings.tsx
+  s_1f356cd81d88ca::t_8fe4501a09f5dd 1-111
+mobile/src/app/(tabs)/subscriptions.tsx
+  s_1f356cd81d88ca::t_0d803f46d9a889 1-142
+mobile/src/app/onboarding/_layout.tsx
+  s_1f356cd81d88ca::t_dc79327fe1156d 1-8
+mobile/src/app/onboarding/payday.tsx
+  s_1f356cd81d88ca::t_271bef8e965234 1-33
+mobile/src/app/onboarding/salary.tsx
+  s_1f356cd81d88ca::t_9ab650e0ec3a74 1-51
+mobile/src/app/review.tsx
+  s_1f356cd81d88ca::t_31d5ab5686b505 1-87
+mobile/src/app/settings/budget.tsx
+  s_1f356cd81d88ca::t_db4b0442d629f1 1-72
+mobile/src/app/settings/delete.tsx
+  s_1f356cd81d88ca::t_04eae1e4ea31f3 1-54
+mobile/src/app/settings/privacy.tsx
+  s_1f356cd81d88ca::t_fef6436cc2a047 1-98
+mobile/src/app/settings/report-time.tsx
+  s_1f356cd81d88ca::t_8fdb2c60bff17e 1-52
+mobile/src/components/keypad.tsx
+  s_1f356cd81d88ca::t_5f49d9b68d88b3 1-59
+mobile/src/components/text.tsx
+  s_1f356cd81d88ca::t_cf66bc663b42cd 1-38
+mobile/src/features/__tests__/analysis.test.ts
+  s_1f356cd81d88ca::t_9df0c00d755d06 1-141
+mobile/src/features/account/session.ts
+  s_1f356cd81d88ca::t_2344612286f934 1-22
+mobile/src/features/budget/forms.tsx
+  s_1f356cd81d88ca::t_d0bc9de05b3f69 1-130
+mobile/src/features/email/senders.ts
+  s_1f356cd81d88ca::t_14a209ebf7f77b 1-18
+mobile/src/features/insights/insights.ts
+  s_1f356cd81d88ca::t_7e25e98caf5329 1-82
+mobile/src/features/notifications/use-nightly.ts
+  s_1f356cd81d88ca::t_a53a05aa743fa8 1-46
+mobile/src/features/onboarding/step.tsx
+  s_1f356cd81d88ca::t_8454235ac83681 1-63
+mobile/src/features/report/report.ts
+  s_1f356cd81d88ca::t_81476b8694433c 1-83
+mobile/src/features/roast/roast.ts
+  s_1f356cd81d88ca::t_6675cdabb2cb68 1-89
+mobile/src/features/sms/permission.ts
+  s_1f356cd81d88ca::t_1d0712e837f2f8 1-20
+mobile/src/features/sms/senders.ts
+  s_1f356cd81d88ca::t_a32269eac66774 1-60
+mobile/src/features/subscriptions/detect.ts
+  s_1f356cd81d88ca::t_c971b9982f59e8 1-113
+mobile/src/features/sync/background.ts
+  s_1f356cd81d88ca::t_7a8b148a64a391 1-30
+mobile/src/features/sync/server-sync.ts
+  s_1f356cd81d88ca::t_a56599a58ec5ec 1-62
+mobile/src/features/sync/sync.ts
+  s_1f356cd81d88ca::t_0604f975a4482e 1-65
+mobile/src/lib/__tests__/money.test.ts
+  s_1f356cd81d88ca::t_3041064feb1d0c 1-40
+mobile/src/lib/categories.ts
+  s_1f356cd81d88ca::t_65c390539b0312 1-27
+mobile/src/lib/dates.ts
+  s_1f356cd81d88ca::t_f1f18fd55ca4b5 1-109
+mobile/src/lib/haptics.ts
+  s_1f356cd81d88ca::t_e5a256448c2cc7 1-13
+mobile/src/lib/money.ts
+  s_1f356cd81d88ca::t_c8696ed2480bce 1-75
+mobile/src/theme/__tests__/contrast.test.ts
+  s_1f356cd81d88ca::t_19be2529c18bc5 1-50
+mobile/src/theme/theme.tsx
+  s_1f356cd81d88ca::t_44cdd2d8bdfb2e 1-36
+server/.env.example
+  s_1f356cd81d88ca::t_4383530a8a2b4b 1-37
+server/Makefile
+  s_1f356cd81d88ca::t_983ae346635f9e 1-17
+server/cmd/kharcha-dev/main.go
+  s_1f356cd81d88ca::t_2a24cfba85754e 1-76
+server/cmd/kharcha/main.go
+  s_1f356cd81d88ca::t_f77af46cda3ae3 1-141
+server/docker-compose.yml
+  s_1f356cd81d88ca::t_453b82d7789e57 1-19
+server/internal/auth/auth.go
+  s_1f356cd81d88ca::t_dd8056381d5604 1-121
+server/internal/auth/auth_test.go
+  s_1f356cd81d88ca::t_ed8bb8e6b236bf 1-39
+server/internal/dedupe/dedupe.go
+  s_1f356cd81d88ca::t_b3cae7997fefdd 1-123
+server/internal/dedupe/dedupe_test.go
+  s_1f356cd81d88ca::t_096f8af260a785 1-74
+server/internal/gmail/parse.go
+  s_1f356cd81d88ca::t_c747ed13afe4ea 1-84
+server/internal/gmail/query.go
+  s_1f356cd81d88ca::t_abc6d9557bc0d9 1-49
+server/internal/ids/ids.go
+  s_1f356cd81d88ca::t_6b890889c7da0a 1-28
+server/internal/ingest/ingest.go
+  s_1f356cd81d88ca::t_2e74ca2bb1bad5 1-68
+server/internal/llm/anthropic.go
+  s_1f356cd81d88ca::t_9a023ebcfef981 1-71
+server/internal/llm/cli.go
+  s_1f356cd81d88ca::t_aeb2d17aeef9cd 1-110
+server/internal/llm/llm.go
+  s_1f356cd81d88ca::t_53217ff3da06f1 1-69
+server/internal/llm/openai.go
+  s_1f356cd81d88ca::t_da03151135a95d 1-57
+server/internal/llm/prompts.go
+  s_1f356cd81d88ca::t_d1e6bc80aeac7a 1-80
+server/internal/llm/service_test.go
+  s_1f356cd81d88ca::t_fbc67a2e576a8b 1-77
+server/internal/queue/queue.go
+  s_1f356cd81d88ca::t_5c797124e6d9d2 1-135
+server/internal/redact/redact_test.go
+  s_1f356cd81d88ca::t_6208948025e8fa 1-29
+server/internal/store/store.go
+  s_1f356cd81d88ca::t_b292de92305ded 1-78
+server/internal/store/users.go
+  s_1f356cd81d88ca::t_19fb455575dccf 1-214
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ca46ec04530c77acd2c2901beec1c8038948c0c9",
+  "prompts": {},
+  "sessions": {
+    "s_1f356cd81d88ca": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8258777d-c34a-4193-b818-54b667f9dab9",
+        "model": "unknown"
+      },
+      "human_author": "Dipendra Bhardwaj <dipu.sharma.1122@gmail.com>"
+    }
+  }
+}
