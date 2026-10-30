@@ -1,0 +1,23 @@
+README.md
+  s_1f356cd81d88ca::t_34b9ae295a126b 42-56
+mobile/plugins/with-release-signing.js
+  s_1f356cd81d88ca::t_3d2a9a10abb3f9 1-41
+mobile/app.json
+  s_1f356cd81d88ca::t_c509c62c05ee38 39-40,77-78
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "9ff1367a6c63e53bd9eca3c747a32f05eb839c41",
+  "prompts": {},
+  "sessions": {
+    "s_1f356cd81d88ca": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8258777d-c34a-4193-b818-54b667f9dab9",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Dipendra Bhardwaj <dipu.sharma.1122@gmail.com>"
+    }
+  }
+}
