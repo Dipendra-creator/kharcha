@@ -116,7 +116,8 @@ function SubRow({ sub, last }: { sub: StoredSubscription; last: boolean }) {
         </AppText>
       </View>
       <View style={{ alignItems: 'flex-end' }}>
-        <Money paise={sub.amount} variant="body" />
+        {/* Whole rupees: paise pushed "Renews 26 Nov" onto a second line. */}
+        <Money paise={sub.amount} variant="body" decimals={0} />
         {sub.cycle !== 'monthly' ? (
           <AppText variant="caption" color="textMuted">
             {formatINR(sub.monthlyCost, { decimals: 0 })}/mo

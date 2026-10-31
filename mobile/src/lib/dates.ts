@@ -91,6 +91,21 @@ export function shortWeekday(d: Date): string {
   return WEEKDAYS[d.getDay()].slice(0, 3);
 }
 
+const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+/** "October 2026". */
+export function formatMonth(d: Date): string {
+  return `${MONTHS_LONG[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+export function startOfMonth(d: Date): Date {
+  return new Date(d.getFullYear(), d.getMonth(), 1);
+}
+
+export function addMonths(d: Date, n: number): Date {
+  return new Date(d.getFullYear(), d.getMonth() + n, 1);
+}
+
 export function relativeTime(ts: number, now = Date.now()): string {
   const s = Math.max(0, Math.round((now - ts) / 1000));
   if (s < 45) return 'just now';

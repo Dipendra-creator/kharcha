@@ -78,6 +78,9 @@ export function isQuickOrder(merchant: string, category: Category): boolean {
   return info ? !!info.quick : category === 'food' || category === 'groceries';
 }
 
+/** Machine ids such as mandate or merchant hashes: 10+ characters mixing letters and digits. */
+const OPAQUE_IDS = /\b(?=[a-z]*\d)(?=\d*[a-z])[a-z0-9]{10,}\b/gi;
+
 /** Turns a raw payee like "SWIGGY*ORDER 8812" or "zepto.payu@hdfcbank" into a display name. */
 export function normaliseMerchant(raw: string): string {
   const known = matchKnownMerchant(raw.replace(/[._@*-]/g, ' '));
@@ -88,9 +91,14 @@ export function normaliseMerchant(raw: string): string {
     .replace(/[*_#]+/g, ' ')
     .replace(/\b(pvt|private|ltd|limited|llp|inc|india|payu|razorpay|paytm|phonepe|cashfree|billdesk)\b\.?/gi, ' ')
     .replace(/\b\d{3,}\b/g, ' ')
+    .replace(OPAQUE_IDS, ' ')
     .replace(/\s+/g, ' ')
     .trim();
-  if (!cleaned) return raw.trim() || 'Unknown';
+  if (!cleaned) {
+    // Nothing readable left. An id-only handle (019fb1a26dd8…@hdfcbank) says nothing, so don't show it.
+    if (new RegExp(OPAQUE_IDS.source, 'i').test(local)) return raw.includes('@') ? 'UPI payment' : 'Unknown merchant';
+    return raw.trim() || 'Unknown';
+  }
   return cleaned
     .toLowerCase()
     .split(' ')

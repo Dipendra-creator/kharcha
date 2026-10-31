@@ -1,13 +1,15 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { BlurView } from 'expo-blur';
 import type { BottomTabBarProps } from 'expo-router/tabs';
+import { useEffect } from 'react';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { IconName } from '@/lib/categories';
 import { haptic } from '@/lib/haptics';
 import { useTheme } from '@/theme/theme';
-import { spacing, TAB_BAR_HEIGHT } from '@/theme/tokens';
+import { motion, spacing, TAB_BAR_HEIGHT } from '@/theme/tokens';
 
 import { AppText } from './text';
 
@@ -65,29 +67,55 @@ export function GlassTabBar({ state, descriptors, navigateToTab }: BottomTabBarP
                   haptic.select();
                   navigateToTab(route.key);
                 }}
-                style={{ flex: 1, alignItems: 'center', justifyContent: 'center', height: TAB_BAR_HEIGHT }}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    gap: 6,
-                    height: 40,
-                    paddingHorizontal: focused ? spacing.md : 0,
-                    borderRadius: 20,
-                    backgroundColor: focused ? c.accent : 'transparent',
-                  }}>
-                  <Ionicons name={focused ? on : off} size={20} color={focused ? c.onAccent : c.textMuted} />
-                  {focused ? (
-                    <AppText variant="caption" weight="bold" color={c.onAccent} numberOfLines={1}>
-                      {label}
-                    </AppText>
-                  ) : null}
-                </View>
+                // The focused tab is wider so its labelled pill fits ("Settings" overflowed a quarter of the bar).
+                style={{ flex: focused ? 1.8 : 1, alignItems: 'center', justifyContent: 'center', height: TAB_BAR_HEIGHT }}>
+                <TabPill focused={focused} label={label} icon={focused ? on : off} />
               </Pressable>
             );
           })}
         </View>
       </View>
+    </View>
+  );
+}
+
+function TabPill({ focused, label, icon }: { focused: boolean; label: string; icon: IconName }) {
+  const { c } = useTheme();
+  const reduced = useReducedMotion();
+  const shown = useSharedValue(focused ? 1 : 0);
+  useEffect(() => {
+    shown.set(reduced ? (focused ? 1 : 0) : withTiming(focused ? 1 : 0, { duration: motion.fast }));
+  }, [focused, reduced, shown]);
+  const highlight = useAnimatedStyle(() => ({
+    opacity: shown.get(),
+    transform: [{ scale: 0.86 + 0.14 * shown.get() }],
+  }));
+
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        height: 40,
+        maxWidth: '100%',
+        paddingHorizontal: focused ? spacing.md : spacing.sm,
+      }}>
+      {/*
+        The highlight stays mounted with a solid colour and only fades. A pill that switched
+        between transparent and coloured was flattened away by Fabric while unfocused, and came
+        back from Android's view recycler with square corners.
+      */}
+      <Animated.View
+        collapsable={false}
+        style={[StyleSheet.absoluteFill, { borderRadius: 20, backgroundColor: c.accent }, highlight]}
+      />
+      <Ionicons name={icon} size={20} color={focused ? c.onAccent : c.textMuted} />
+      {focused ? (
+        <AppText variant="caption" weight="bold" color={c.onAccent} numberOfLines={1} style={{ flexShrink: 1 }}>
+          {label}
+        </AppText>
+      ) : null}
     </View>
   );
 }

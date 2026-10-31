@@ -1,7 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown, LinearTransition, useReducedMotion } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -94,7 +94,7 @@ export default function TodayScreen() {
       {/* Hero */}
       <View style={{ alignItems: 'center', marginTop: spacing.xl }}>
         <BudgetRing ratio={today.ratio} size={292} />
-        <View style={{ position: 'absolute', top: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' }}>
+        <View pointerEvents="none" style={[StyleSheet.absoluteFill, { alignItems: 'center', justifyContent: 'center' }]}>
           <AppText variant="micro" color={over ? 'over' : 'textMuted'}>
             {over ? 'Over budget' : 'Left today'}
           </AppText>

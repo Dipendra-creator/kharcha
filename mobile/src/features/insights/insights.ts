@@ -42,6 +42,23 @@ export function hourlySpend(txns: SpendTxn[]): number[] {
   return hours;
 }
 
+export type RangeSummary = { spent: number; saved: number; underBudget: number; elapsed: number };
+
+/**
+ * Totals for a run of days (a calendar month). Savings are measured against
+ * each day's plain base budget: summing rollover-adjusted budgets would count
+ * carried-over money twice. Upcoming days are ignored.
+ */
+export function rangeSummary(days: { future: boolean; spent: number; budget: number; base: number }[]): RangeSummary {
+  const elapsed = days.filter((d) => !d.future);
+  return {
+    spent: elapsed.reduce((s, d) => s + d.spent, 0),
+    saved: elapsed.reduce((s, d) => s + d.base - d.spent, 0),
+    underBudget: elapsed.filter((d) => d.spent <= d.budget).length,
+    elapsed: elapsed.length,
+  };
+}
+
 const isLateHour = (h: number) => h >= 22 || h < 4;
 
 /**

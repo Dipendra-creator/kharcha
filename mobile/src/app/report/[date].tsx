@@ -13,8 +13,8 @@ import { ProgressBar } from '@/components/charts';
 import { Money } from '@/components/money';
 import { StatusBarScrim } from '@/components/screen';
 import { AppText } from '@/components/text';
-import { MerchantAvatar } from '@/components/txn-row';
-import { Button, IconButton } from '@/components/ui';
+import { MerchantAvatar, TxnRow } from '@/components/txn-row';
+import { Button, Card, IconButton } from '@/components/ui';
 import { useBudgetInput, useDbQuery, useNow } from '@/db/hooks';
 import { getSummary, saveSummary } from '@/db/meta';
 import { listDay, spentByDay } from '@/db/transactions';
@@ -160,7 +160,7 @@ export default function ReportScreen() {
           <Tile
             label="Delivery orders"
             value={`${report.quickOrders} ${report.quickOrders === 1 ? 'order' : 'orders'}`}
-            detail="Food & quick-commerce"
+            detail="Food & groceries"
             icon={<IconTile name="bicycle" color={c.safe} />}
           />
           <Tile
@@ -187,6 +187,19 @@ export default function ReportScreen() {
             <AppText variant="bodyRegular">{report.suggestion}</AppText>
           </View>
         </Animated.View>
+
+        {data.txns.length ? (
+          <Animated.View entering={enter(4)} style={{ marginTop: spacing.xxl }}>
+            <AppText variant="micro" color="textMuted" accessibilityRole="header" style={{ marginBottom: spacing.md }}>
+              Where it went · {data.txns.length} {data.txns.length === 1 ? 'entry' : 'entries'}
+            </AppText>
+            <Card padded={false} style={{ paddingHorizontal: spacing.lg, paddingVertical: spacing.xs }}>
+              {data.txns.map((t) => (
+                <TxnRow key={t.id} txn={t} onPress={() => router.push({ pathname: '/add', params: { id: t.id } })} />
+              ))}
+            </Card>
+          </Animated.View>
+        ) : null}
 
         <Button title="Share to story" icon="logo-instagram" onPress={share} loading={sharing} style={{ marginTop: spacing.xxl }} />
       </ScrollView>

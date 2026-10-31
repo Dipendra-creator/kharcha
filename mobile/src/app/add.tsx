@@ -10,7 +10,7 @@ import { Button, Chip, Row, Segmented } from '@/components/ui';
 import { saveRule } from '@/db/meta';
 import { deleteTxn, getTxn, insertTxn, updateTxn } from '@/db/transactions';
 import { categoryMeta, methodLabel } from '@/lib/categories';
-import { addDays, formatDate, formatTime } from '@/lib/dates';
+import { addDays, dayKey, formatDate, formatTime, fromDayKey, type DayKey } from '@/lib/dates';
 import { haptic } from '@/lib/haptics';
 import { formatINR, groupIndian, parseAmount } from '@/lib/money';
 import type { Category, PaymentMethod, TxnType } from '@/lib/types';
@@ -19,18 +19,24 @@ import { CATEGORIES, fonts, radii, spacing } from '@/theme/tokens';
 
 const METHODS: PaymentMethod[] = ['cash', 'upi', 'card', 'wallet', 'netbanking'];
 
-/** Manual entry sheet; with `?id=` it edits (or confirms) an existing transaction. */
+/**
+ * Manual entry sheet; with `?id=` it edits (or confirms) an existing transaction.
+ * `?date=YYYY-MM-DD` (from a past day in Insights) logs the new spend on that day.
+ */
 export default function AddSheet() {
   const { c } = useTheme();
-  const { id } = useLocalSearchParams<{ id?: string }>();
+  const { id, date } = useLocalSearchParams<{ id?: string; date?: string }>();
   const [existing] = useState(() => (id ? getTxn(id) : null));
+  const [todayKey] = useState(() => dayKey(new Date()));
+  const yesterdayKey = dayKey(addDays(fromDayKey(todayKey), -1));
+  const [pastDay] = useState(() => (date && /^\d{4}-\d{2}-\d{2}$/.test(date) && date < yesterdayKey ? date : null));
 
   const [amount, setAmount] = useState(() => (existing ? (existing.amount / 100).toString() : ''));
   const [type, setType] = useState<TxnType>(existing?.type ?? 'debit');
   const [category, setCategory] = useState<Category>(existing?.category ?? 'food');
   const [merchant, setMerchant] = useState(existing?.merchant ?? '');
   const [method, setMethod] = useState<PaymentMethod>(existing?.method ?? 'cash');
-  const [yesterday, setYesterday] = useState(false);
+  const [when, setWhen] = useState<DayKey>(() => (date === yesterdayKey ? yesterdayKey : (pastDay ?? todayKey)));
   const [excluded, setExcluded] = useState(existing?.excluded ?? false);
 
   const paise = parseAmount(amount || '0') ?? 0;
@@ -57,7 +63,11 @@ export default function AddSheet() {
         saveRule({ pattern: existing.merchant, merchant: name, category, type });
       }
     } else {
-      const base = new Date();
+      // Past days keep the current time of day, as "Yesterday" always has.
+      const now = new Date();
+      const day = fromDayKey(when);
+      const occurredAt =
+        when === dayKey(now) ? now : new Date(day.getFullYear(), day.getMonth(), day.getDate(), now.getHours(), now.getMinutes());
       insertTxn({
         amount: paise,
         type,
@@ -65,7 +75,7 @@ export default function AddSheet() {
         merchant: name,
         method,
         source: 'manual',
-        occurredAt: (yesterday ? addDays(base, -1) : base).getTime(),
+        occurredAt: occurredAt.getTime(),
         excluded,
       });
     }
@@ -193,9 +203,17 @@ export default function AddSheet() {
           <AppText variant="micro" color="textMuted" style={{ marginTop: spacing.xxl, marginBottom: spacing.md }}>
             When
           </AppText>
-          <View style={{ flexDirection: 'row', gap: spacing.sm }}>
-            <Chip label="Today" selected={!yesterday} onPress={() => setYesterday(false)} />
-            <Chip label="Yesterday" selected={yesterday} onPress={() => setYesterday(true)} />
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
+            <Chip label="Today" selected={when === todayKey} onPress={() => setWhen(todayKey)} />
+            <Chip label="Yesterday" selected={when === yesterdayKey} onPress={() => setWhen(yesterdayKey)} />
+            {pastDay ? (
+              <Chip
+                label={formatDate(fromDayKey(pastDay), { weekday: true })}
+                icon="calendar-outline"
+                selected={when === pastDay}
+                onPress={() => setWhen(pastDay)}
+              />
+            ) : null}
           </View>
         </>
       ) : null}

@@ -1,27 +1,58 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { View } from 'react-native';
+import { useRef, useState, type ReactNode } from 'react';
+import { View, type LayoutChangeEvent } from 'react-native';
+import Animated, { FadeInDown, useReducedMotion } from 'react-native-reanimated';
 
-import { Donut, HourBars, ProgressBar, WeeklyBars } from '@/components/charts';
+import { DailyBars, Donut, HourBars, ProgressBar } from '@/components/charts';
+import { DayDetail } from '@/components/day-detail';
 import { Money } from '@/components/money';
-import { Screen } from '@/components/screen';
+import { Screen, useReveal } from '@/components/screen';
+import { SpendCalendar } from '@/components/spend-calendar';
 import { AppText } from '@/components/text';
 import { MerchantAvatar } from '@/components/txn-row';
-import { Card, EmptyState, SectionTitle } from '@/components/ui';
-import { useCycleBudget, useDbQuery, useRecentDays } from '@/db/hooks';
-import { listBetween } from '@/db/transactions';
-import { categoryBreakdown, hourlySpend, impulseWindow, topMerchants } from '@/features/insights/insights';
+import { Card, EmptyState, SectionTitle, Segmented } from '@/components/ui';
+import { useCycleBudget, useDayRange, useDbQuery, useNow, useRecentDays } from '@/db/hooks';
+import { earliestTxnAt, listBetween } from '@/db/transactions';
+import { categoryBreakdown, hourlySpend, impulseWindow, topMerchants, totalSpent } from '@/features/insights/insights';
 import { categoryMeta } from '@/lib/categories';
-import { addDays, formatDate, formatHour } from '@/lib/dates';
+import {
+  addDays,
+  addMonths,
+  dayKey,
+  daysInMonth,
+  formatDate,
+  formatHour,
+  fromDayKey,
+  shortWeekday,
+  startOfMonth,
+  type DayKey,
+} from '@/lib/dates';
 import { formatINR } from '@/lib/money';
 import { useTheme, withAlpha } from '@/theme/theme';
 import { radii, spacing } from '@/theme/tokens';
 
+type Range = '7' | '30';
+
 export default function InsightsScreen() {
   const { c, category } = useTheme();
+  const now = useNow();
   const budget = useCycleBudget();
-  const week = useRecentDays(7);
   const { start, end } = budget.cycle;
   const txns = useDbQuery(() => listBetween(start.getTime(), end.getTime()), [start.getTime(), end.getTime()]);
+
+  const [range, setRange] = useState<Range>('7');
+  const [barKey, setBarKey] = useState<DayKey | null>(null);
+  const recent = useRecentDays(Number(range));
+  const barDay = recent.find((d) => d.key === barKey) ?? null;
+
+  const thisMonth = startOfMonth(now);
+  const [month, setMonth] = useState(thisMonth);
+  const [calKey, setCalKey] = useState<DayKey | null>(null);
+  const monthDays = useDayRange(month, daysInMonth(month.getFullYear(), month.getMonth()));
+  const calDay = monthDays.find((d) => d.key === calKey && !d.future) ?? null;
+  const earliest = useDbQuery(() => earliestTxnAt(), []);
+  const firstMonth = startOfMonth(new Date(Math.min(earliest ?? now.getTime(), now.getTime())));
+  const { scrollProps, reveal } = useReveal();
 
   const cats = categoryBreakdown(txns);
   const merchants = topMerchants(txns, 5);
@@ -33,7 +64,7 @@ export default function InsightsScreen() {
   const elapsedRatio = (budget.todayIndex - budget.activeFrom + 1) / tracked;
 
   return (
-    <Screen tabs>
+    <Screen tabs scrollProps={scrollProps}>
       <AppText variant="title" accessibilityRole="header">
         Insights
       </AppText>
@@ -55,20 +86,75 @@ export default function InsightsScreen() {
           </AppText>
         </AppText>
         <ProgressBar ratio={usedRatio} color={usedRatio > elapsedRatio ? c.warning : c.accentGraphic} track={c.ringTrack} />
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-          <AppText variant="caption" color="textMuted">
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: spacing.sm }}>
+          <AppText variant="caption" color="textMuted" style={{ flexShrink: 1 }}>
             {formatINR(budget.spentToDate, { decimals: 0 })} spent of {formatINR(budget.available, { decimals: 0 })}
           </AppText>
           <AppText variant="caption" color="textMuted">
             {Math.round(elapsedRatio * 100)}% of cycle gone
           </AppText>
         </View>
+        {budget.activeFrom > 0 ? (
+          <AppText variant="caption" color="textMuted">
+            Counted from {formatDate(fromDayKey(budget.days[budget.activeFrom].key))}, when you started tracking.
+          </AppText>
+        ) : null}
       </Card>
 
-      <SectionTitle title="Last 7 days" />
-      <Card>
-        <WeeklyBars days={week} />
+      <SectionTitle title="Daily spend" />
+      <Card style={{ gap: spacing.lg }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
+          <View style={{ flex: 1 }} accessibilityLiveRegion="polite">
+            <AppText variant="label" numberOfLines={1}>
+              {barDay ? `${shortWeekday(barDay.date)}, ${formatDate(barDay.date)}` : `Last ${range} days`}
+            </AppText>
+            <AppText variant="caption" color="textMuted" numberOfLines={1}>
+              {barDay
+                ? `${formatINR(barDay.spent, { decimals: 0 })} of ${formatINR(barDay.budget, { decimals: 0 })}`
+                : 'Tap or drag across a bar'}
+            </AppText>
+          </View>
+          <View style={{ width: 132 }}>
+            <Segmented<Range>
+              options={[
+                { value: '7', label: '7D' },
+                { value: '30', label: '30D' },
+              ]}
+              value={range}
+              onChange={setRange}
+            />
+          </View>
+        </View>
+        <DailyBars days={recent} selected={barKey} onSelect={setBarKey} />
       </Card>
+      {/* Not keyed by day: dragging across the bars must not re-reveal (and scroll) on every bar. */}
+      {barDay ? (
+        <Revealed reveal={reveal}>
+          <DayDetail day={barDay} onClose={() => setBarKey(null)} />
+        </Revealed>
+      ) : null}
+
+      <SectionTitle title="Calendar" />
+      <Card>
+        <SpendCalendar
+          month={month}
+          days={monthDays}
+          todayKey={dayKey(now)}
+          selected={calKey}
+          onSelect={setCalKey}
+          onMonthChange={(by) => {
+            setMonth(addMonths(month, by));
+            setCalKey(null);
+          }}
+          canPrev={month > firstMonth}
+          canNext={month < thisMonth}
+        />
+      </Card>
+      {calDay ? (
+        <Revealed key={calDay.key} reveal={reveal}>
+          <DayDetail day={calDay} onClose={() => setCalKey(null)} />
+        </Revealed>
+      ) : null}
 
       <SectionTitle title="Where it went" />
       <Card>
@@ -76,7 +162,8 @@ export default function InsightsScreen() {
           <EmptyState icon="pie-chart-outline" title="Nothing yet" body="Category split appears after your first spends this cycle." />
         ) : (
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.xl }}>
-            <Donut data={cats} centerLabel="This cycle" centerValue={formatINR(budget.spentToDate, { compact: true, decimals: 0 })} size={148} stroke={20} />
+            {/* The centre is the total of the slices around it: the whole cycle, tracked or not. */}
+            <Donut data={cats} centerLabel="This cycle" centerValue={formatINR(totalSpent(txns), { compact: true, decimals: 0 })} size={148} stroke={20} />
             <View style={{ flex: 1, gap: spacing.sm }}>
               {cats.slice(0, 5).map((cat) => (
                 <View key={cat.category} style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
@@ -155,5 +242,23 @@ export default function InsightsScreen() {
         )}
       </Card>
     </Screen>
+  );
+}
+
+/** Fades details in under what was tapped, scrolling them into view once when they first appear. */
+function Revealed({ reveal, children }: { reveal: (e: LayoutChangeEvent) => void; children: ReactNode }) {
+  const reduced = useReducedMotion();
+  const shown = useRef(false);
+  return (
+    <Animated.View
+      entering={reduced ? undefined : FadeInDown.springify().damping(18)}
+      style={{ marginTop: spacing.md }}
+      onLayout={(e) => {
+        if (shown.current) return;
+        shown.current = true;
+        reveal(e);
+      }}>
+      {children}
+    </Animated.View>
   );
 }

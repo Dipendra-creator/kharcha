@@ -205,6 +205,15 @@ export function listDay(key: DayKey): Txn[] {
   return listBetween(start.getTime(), end.getTime());
 }
 
+/** When the oldest live transaction happened, or null with none. */
+export function earliestTxnAt(): number | null {
+  return (
+    db.getFirstSync<{ at: number | null }>(
+      `SELECT MIN(occurred_at) AS at FROM transactions WHERE deleted = 0 AND merged_into IS NULL AND status != 'ignored'`,
+    )?.at ?? null
+  );
+}
+
 export function listReview(): Txn[] {
   return db
     .getAllSync<Row>(

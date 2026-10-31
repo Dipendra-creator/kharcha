@@ -120,6 +120,7 @@ export function IconButton({
   tone = 'raised',
   size = 44,
   color,
+  disabled,
 }: {
   icon: IconName;
   label: string;
@@ -127,6 +128,7 @@ export function IconButton({
   tone?: 'raised' | 'plain' | 'accent';
   size?: number;
   color?: string;
+  disabled?: boolean;
 }) {
   const { c } = useTheme();
   const bg = tone === 'raised' ? c.raised : tone === 'accent' ? c.accent : 'transparent';
@@ -134,6 +136,8 @@ export function IconButton({
     <PressableScale
       accessibilityRole="button"
       accessibilityLabel={label}
+      accessibilityState={{ disabled: !!disabled }}
+      disabled={disabled}
       hitSlop={8}
       onPress={() => {
         haptic.tap();
@@ -146,6 +150,7 @@ export function IconButton({
         backgroundColor: bg,
         alignItems: 'center',
         justifyContent: 'center',
+        opacity: disabled ? 0.35 : 1,
       }}>
       <Ionicons name={icon} size={size * 0.46} color={color ?? (tone === 'accent' ? c.onAccent : c.text)} />
     </PressableScale>

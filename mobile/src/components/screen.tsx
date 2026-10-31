@@ -1,6 +1,14 @@
 import { router } from 'expo-router';
-import type { ReactNode } from 'react';
-import { RefreshControl, ScrollView, View, type StyleProp, type ViewStyle } from 'react-native';
+import { useRef, type ComponentRef, type ReactNode, type RefObject } from 'react';
+import {
+  RefreshControl,
+  ScrollView,
+  View,
+  type LayoutChangeEvent,
+  type ScrollViewProps,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme, withAlpha } from '@/theme/theme';
@@ -19,9 +27,45 @@ type ScreenProps = {
   contentStyle?: StyleProp<ViewStyle>;
   /** Rendered outside the scroll view (e.g. a floating button). */
   overlay?: ReactNode;
+  /** From `useReveal`. */
+  scrollProps?: RevealScrollProps;
 };
 
-export function Screen({ children, tabs, scroll = true, refreshing, onRefresh, contentStyle, overlay }: ScreenProps) {
+type RevealScrollProps = Pick<ScrollViewProps, 'onScroll' | 'onLayout' | 'scrollEventThrottle'> & {
+  ref: RefObject<ComponentRef<typeof ScrollView> | null>;
+};
+
+/**
+ * Scrolls a Screen just far enough to show content that appeared below the
+ * fold, such as details opened by a tap. Pass `scrollProps` to the Screen and
+ * call `reveal` from the new content's first onLayout.
+ */
+export function useReveal(minVisible = 280) {
+  const insets = useSafeAreaInsets();
+  const ref = useRef<ComponentRef<typeof ScrollView>>(null);
+  const offset = useRef(0);
+  const viewport = useRef(0);
+  const scrollProps: RevealScrollProps = {
+    ref,
+    scrollEventThrottle: 32,
+    onScroll: (e) => {
+      offset.current = e.nativeEvent.contentOffset.y;
+    },
+    onLayout: (e) => {
+      viewport.current = e.nativeEvent.layout.height;
+    },
+  };
+  const reveal = (e: LayoutChangeEvent) => {
+    const { y, height } = e.nativeEvent.layout;
+    // The floating tab bar covers the bottom of tab screens.
+    const visibleBottom = offset.current + viewport.current - TAB_BAR_HEIGHT - insets.bottom - spacing.xl;
+    const wanted = y + Math.min(height, minVisible);
+    if (wanted > visibleBottom) ref.current?.scrollTo({ y: offset.current + wanted - visibleBottom, animated: true });
+  };
+  return { scrollProps, reveal };
+}
+
+export function Screen({ children, tabs, scroll = true, refreshing, onRefresh, contentStyle, overlay, scrollProps }: ScreenProps) {
   const { c } = useTheme();
   const insets = useSafeAreaInsets();
   const padding: ViewStyle = {
@@ -33,6 +77,7 @@ export function Screen({ children, tabs, scroll = true, refreshing, onRefresh, c
     <View style={{ flex: 1, backgroundColor: c.bg }}>
       {scroll ? (
         <ScrollView
+          {...scrollProps}
           contentContainerStyle={[padding, contentStyle]}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"

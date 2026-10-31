@@ -1,4 +1,4 @@
-import { categoryBreakdown, hourlySpend, impulseWindow, topMerchants } from '@/features/insights/insights';
+import { categoryBreakdown, hourlySpend, impulseWindow, rangeSummary, topMerchants } from '@/features/insights/insights';
 import { buildReport } from '@/features/report/report';
 import { roastBand, ruleVerdict } from '@/features/roast/roast';
 import { detectSubscriptions } from '@/features/subscriptions/detect';
@@ -78,6 +78,17 @@ describe('insights', () => {
     expect(w).not.toBeNull();
     expect(w!.lateNight).toBe(true);
     expect(w!.count).toBe(3);
+  });
+
+  it('sums a calendar month against the base budget, skipping upcoming days', () => {
+    const s = rangeSummary([
+      // Rollover lifted day 2's budget to 2,500; savings must not count that 500 twice.
+      { future: false, base: 2_000_00, budget: 2_000_00, spent: 1_500_00 },
+      { future: false, base: 2_000_00, budget: 2_500_00, spent: 2_400_00 },
+      { future: false, base: 2_000_00, budget: 1_900_00, spent: 2_600_00 },
+      { future: true, base: 0, budget: 0, spent: 0 },
+    ]);
+    expect(s).toEqual({ spent: 6_500_00, saved: -500_00, underBudget: 2, elapsed: 3 });
   });
 });
 

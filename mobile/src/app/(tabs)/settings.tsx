@@ -43,7 +43,7 @@ export default function SettingsScreen() {
 
       <SectionTitle title="Budget" />
       <Card padded={false} style={{ paddingHorizontal: spacing.lg }}>
-        <Row icon="wallet-outline" title="Salary, fixed costs & payday" subtitle={`Payday: ${ordinal(profile.payday)} · ${profile.fixedCosts.length} fixed costs`} onPress={() => router.push('/settings/budget')} />
+        <Row icon="wallet-outline" title="Salary, fixed costs & payday" subtitle={`Payday: ${ordinal(profile.payday)} · ${profile.fixedCosts.length} fixed ${profile.fixedCosts.length === 1 ? 'cost' : 'costs'}`} onPress={() => router.push('/settings/budget')} />
         <Row
           icon="arrow-redo-outline"
           title="Roll over unspent money"

@@ -38,9 +38,12 @@ export function Money({ paise, variant = 'body', color = 'text', symbolColor, st
       accessible
       accessibilityRole="text"
       accessibilityLabel={`${label ? `${label}: ` : ''}${spokenINR(paise)}`}>
-      <AppText variant={variant} color={color} tabular style={sized}>
-        {sign}
-      </AppText>
+      {/* Only when there is a sign: an empty Text still measures a full font box on Android, which made big amounts top-heavy. */}
+      {sign ? (
+        <AppText variant={variant} color={color} tabular style={sized}>
+          {sign}
+        </AppText>
+      ) : null}
       <AppText
         variant={variant}
         color={symbolColor ?? color}

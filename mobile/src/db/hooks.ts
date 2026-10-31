@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { AppState } from 'react-native';
 
-import { computeCycleBudget, type CycleBudget } from '@/features/budget/budget';
-import { addDays, cycleFor, dayKey, startOfDay } from '@/lib/dates';
+import { computeCycleBudget, type CycleBudget, type DayBudget } from '@/features/budget/budget';
+import { addDays, cycleFor, dayKey, fromDayKey, startOfDay } from '@/lib/dates';
 import { useApp, useDataVersion } from '@/store/app-store';
 
 import { spentByDay } from './transactions';
@@ -70,19 +70,39 @@ export function useCycleBudget(at?: Date): CycleBudget {
   return computeCycleBudget(input, spent, date);
 }
 
-/** Budget vs spend for the last `n` days ending today; days in earlier cycles use that cycle's budget. */
-export function useRecentDays(n: number) {
+export type RangeDay = DayBudget & {
+  date: Date;
+  /** Unadjusted daily budget of the day's cycle. */
+  base: number;
+  /** After today: no budget or spend yet. */
+  future: boolean;
+};
+
+/**
+ * Budget vs spend for `count` days starting at `from`; each day uses its own
+ * cycle's budget, so a range may span paydays.
+ */
+export function useDayRange(from: Date, count: number): RangeDay[] {
   const now = useNow();
   const input = useBudgetInput();
-  const key = dayKey(now);
+  const todayKey = dayKey(now);
+  const fromKey = dayKey(from);
   const spentAll = useDbQuery(() => {
-    const from = cycleFor(addDays(now, -(n - 1)), input.payday).start;
-    return spentByDay(from.getTime(), startOfDay(addDays(now, 1)).getTime());
-  }, [key, n, input.payday]);
+    const start = cycleFor(fromDayKey(fromKey), input.payday).start;
+    return spentByDay(start.getTime(), addDays(fromDayKey(fromKey), count).getTime());
+  }, [fromKey, count, input.payday, todayKey]);
 
-  return Array.from({ length: n }, (_, i) => {
-    const date = addDays(now, i - (n - 1));
+  return Array.from({ length: count }, (_, i) => {
+    const date = addDays(fromDayKey(fromKey), i);
+    const key = dayKey(date);
+    if (key > todayKey) return { date, key, base: 0, budget: 0, spent: 0, remaining: 0, ratio: 0, future: true };
     const cb = computeCycleBudget(input, spentAll, date);
-    return { date, ...cb.today };
+    return { date, base: cb.base, ...cb.today, future: false };
   });
+}
+
+/** Budget vs spend for the last `n` days ending today. */
+export function useRecentDays(n: number): RangeDay[] {
+  const now = useNow();
+  return useDayRange(addDays(startOfDay(now), -(n - 1)), n);
 }

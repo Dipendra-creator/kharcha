@@ -1,13 +1,14 @@
-import { Canvas, DashPathEffect, Group, Line, Path, RoundedRect, Skia, vec } from '@shopify/react-native-skia';
-import { useState } from 'react';
-import { View, type LayoutChangeEvent } from 'react-native';
+import { Canvas, DashPathEffect, Group, Line, Path, Rect, RoundedRect, Skia, vec } from '@shopify/react-native-skia';
+import { useRef, useState } from 'react';
+import { View, type GestureResponderEvent, type LayoutChangeEvent, type ViewProps } from 'react-native';
 
 import { budgetState } from '@/features/budget/budget';
 import { categoryMeta } from '@/lib/categories';
-import { shortWeekday } from '@/lib/dates';
+import { formatDate, shortWeekday, type DayKey } from '@/lib/dates';
+import { haptic } from '@/lib/haptics';
 import { formatINR, spokenINR } from '@/lib/money';
 import type { Category } from '@/lib/types';
-import { useTheme } from '@/theme/theme';
+import { useTheme, withAlpha } from '@/theme/theme';
 import { spacing } from '@/theme/tokens';
 
 import { stateColor } from './budget-ring';
@@ -18,36 +19,112 @@ function useWidth(initial = 0) {
   return [width, (e: LayoutChangeEvent) => setWidth(Math.round(e.nativeEvent.layout.width))] as const;
 }
 
-/** Daily spend bars against a dashed average-budget line. Bars take the budget-state colour. */
-export function WeeklyBars({ days, height = 160 }: { days: { date: Date; spent: number; budget: number; ratio: number }[]; height?: number }) {
+type BarDay = { key: DayKey; date: Date; spent: number; budget: number; ratio: number };
+
+const LABEL_W = 56;
+
+/**
+ * Daily spend bars against a dashed average-budget line. Bars take the
+ * budget-state colour. With `onSelect`, tapping or dragging across the bars
+ * picks a day; tapping the picked bar again clears it.
+ */
+export function DailyBars({
+  days,
+  selected,
+  onSelect,
+  height = 160,
+}: {
+  days: BarDay[];
+  selected?: DayKey | null;
+  onSelect?: (key: DayKey | null) => void;
+  height?: number;
+}) {
   const { c } = useTheme();
   const [width, onLayout] = useWidth();
+  // A month of bars is too narrow for a label each: label weekly, counting back from today.
+  const dense = days.length > 10;
   const avgBudget = days.reduce((s, d) => s + d.budget, 0) / Math.max(1, days.length);
-  const max = Math.max(avgBudget * 1.15, ...days.map((d) => d.spent), 1);
-  const gap = 10;
+  const [largest = 0, second = 0] = days.map((d) => d.spent).sort((a, b) => b - a);
+  // One outlier (rent, a big transfer) would flatten every other bar: cap the scale and mark the bars it cuts.
+  const max = Math.max(avgBudget * 1.15, Math.min(largest, Math.max(avgBudget * 2.5, second * 1.25)), 1);
+  const gap = dense ? 3 : 10;
   const barW = width ? (width - gap * (days.length - 1)) / days.length : 0;
-  const y = (v: number) => height - (v / max) * height;
-  const summary = days
-    .map((d) => `${shortWeekday(d.date)} ${spokenINR(d.spent)} of ${spokenINR(d.budget)}`)
-    .join('; ');
+  const y = (v: number) => height - (Math.min(v, max) / max) * height;
+  const last = days.length - 1;
+  const picked = selected ? days.findIndex((d) => d.key === selected) : -1;
+  const labelFor = (d: BarDay, i: number) => (i === last ? 'Today' : dense ? formatDate(d.date) : shortWeekday(d.date));
+
+  // Scrubbing: the index under the finger, and whether this touch began on the already-picked bar.
+  const scrub = useRef({ index: -1, clear: false });
+  const indexAt = (x: number) => Math.min(last, Math.max(0, Math.floor((x + gap / 2) / (barW + gap))));
+  const pick = (i: number) => {
+    if (i === scrub.current.index) return;
+    scrub.current.index = i;
+    haptic.select();
+    onSelect?.(days[i].key);
+  };
+  const touch: Partial<ViewProps> = onSelect
+    ? {
+        onStartShouldSetResponder: () => true,
+        onResponderGrant: (e: GestureResponderEvent) => {
+          const i = indexAt(e.nativeEvent.locationX);
+          scrub.current = { index: picked, clear: i === picked };
+          if (i !== picked) pick(i);
+        },
+        onResponderMove: (e: GestureResponderEvent) => {
+          const i = indexAt(e.nativeEvent.locationX);
+          if (i === scrub.current.index) return;
+          scrub.current.clear = false;
+          pick(i);
+        },
+        onResponderRelease: () => {
+          if (scrub.current.clear) onSelect(null);
+        },
+      }
+    : {};
+
+  const describe = (d: BarDay, i: number) => `${labelFor(d, i)}, ${spokenINR(d.spent)} of ${spokenINR(d.budget)}`;
+  const step = (by: number) => {
+    const i = picked < 0 ? last : Math.min(last, Math.max(0, picked + by));
+    onSelect?.(days[i].key);
+  };
 
   return (
-    <View accessible accessibilityLabel={`Daily spend, last ${days.length} days. ${summary}`}>
-      <View onLayout={onLayout} style={{ height }}>
+    <View
+      accessible
+      accessibilityRole={onSelect ? 'adjustable' : undefined}
+      accessibilityLabel={`Daily spend, last ${days.length} days`}
+      accessibilityValue={{ text: picked >= 0 ? describe(days[picked], picked) : days.map(describe).join('; ') }}
+      accessibilityActions={onSelect ? [{ name: 'increment' }, { name: 'decrement' }] : undefined}
+      onAccessibilityAction={(e) => step(e.nativeEvent.actionName === 'increment' ? 1 : -1)}>
+      <View onLayout={onLayout} style={{ height }} {...touch}>
         {width ? (
           <Canvas style={{ width, height }}>
+            {picked >= 0 ? (
+              <RoundedRect
+                x={picked * (barW + gap) - gap / 2}
+                y={0}
+                width={barW + gap}
+                height={height}
+                r={Math.min(10, (barW + gap) / 2)}
+                color={withAlpha(c.text, 0.07)}
+              />
+            ) : null}
             {days.map((d, i) => {
               const h = Math.max(4, height - y(d.spent));
+              const x = i * (barW + gap);
               return (
-                <RoundedRect
-                  key={d.date.toISOString()}
-                  x={i * (barW + gap)}
-                  y={height - h}
-                  width={barW}
-                  height={h}
-                  r={Math.min(8, barW / 2)}
-                  color={d.spent ? stateColor(budgetState(d.ratio), c) : c.ringTrack}
-                />
+                <Group key={d.key} opacity={picked < 0 || picked === i ? 1 : 0.35}>
+                  <RoundedRect
+                    x={x}
+                    y={height - h}
+                    width={barW}
+                    height={h}
+                    r={Math.min(8, barW / 2)}
+                    color={d.spent ? stateColor(budgetState(d.ratio), c) : c.ringTrack}
+                  />
+                  {d.spent > max ? <Rect x={x} y={12} width={barW} height={3} color={c.surface} /> : null}
+                </Group>
               );
             })}
             <Line p1={vec(0, y(avgBudget))} p2={vec(width, y(avgBudget))} color={c.textMuted} strokeWidth={1.5}>
@@ -56,20 +133,45 @@ export function WeeklyBars({ days, height = 160 }: { days: { date: Date; spent: 
           </Canvas>
         ) : null}
       </View>
-      <View style={{ flexDirection: 'row', gap, marginTop: spacing.sm }}>
-        {days.map((d, i) => (
-          <AppText
-            key={d.date.toISOString()}
-            variant="caption"
-            color={i === days.length - 1 ? 'text' : 'textMuted'}
-            align="center"
-            numberOfLines={1}
-            adjustsFontSizeToFit
-            style={{ flex: 1 }}>
-            {i === days.length - 1 ? 'Today' : shortWeekday(d.date)}
-          </AppText>
-        ))}
-      </View>
+      {dense ? (
+        <View style={{ height: 17, marginTop: spacing.sm }}>
+          {width
+            ? days.map((d, i) =>
+                (last - i) % 7 === 0 ? (
+                  <AppText
+                    key={d.key}
+                    variant="caption"
+                    color={i === picked || (picked < 0 && i === last) ? 'text' : 'textMuted'}
+                    align="center"
+                    numberOfLines={1}
+                    style={{
+                      position: 'absolute',
+                      width: LABEL_W,
+                      left: Math.min(width - LABEL_W, Math.max(0, i * (barW + gap) + barW / 2 - LABEL_W / 2)),
+                    }}>
+                    {labelFor(d, i)}
+                  </AppText>
+                ) : null,
+              )
+            : null}
+        </View>
+      ) : (
+        <View style={{ flexDirection: 'row', gap, marginTop: spacing.sm }}>
+          {days.map((d, i) => (
+            <AppText
+              key={d.key}
+              variant="caption"
+              weight={i === picked ? 'bold' : undefined}
+              color={i === picked || (picked < 0 && i === last) ? 'text' : 'textMuted'}
+              align="center"
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              style={{ flex: 1 }}>
+              {labelFor(d, i)}
+            </AppText>
+          ))}
+        </View>
+      )}
       <AppText variant="caption" color="textMuted" style={{ marginTop: spacing.sm }}>
         Dashed line: average daily budget, {formatINR(avgBudget, { decimals: 0 })}
       </AppText>
