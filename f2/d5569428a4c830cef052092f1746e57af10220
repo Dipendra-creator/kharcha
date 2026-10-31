@@ -1,0 +1,94 @@
+mobile/src/app/(tabs)/subscriptions.tsx
+  s_4700c3589e172a::t_e6dc19c670ee39 119-120
+mobile/src/app/add.tsx
+  s_4700c3589e172a::t_2c3d896a98fd75 66-70,78
+  s_4700c3589e172a::t_2608b56ca142ed 13
+  s_4700c3589e172a::t_3098c8594904d0 206-216
+  s_4700c3589e172a::t_bb649c5e976e70 22-25,28,30-32,39
+mobile/src/components/ui.tsx
+  s_4700c3589e172a::t_764664587911cc 123,131,139-140,153
+mobile/src/components/spend-calendar.tsx
+  s_4700c3589e172a::t_3081ec05f17421 1-4,6-47,49-66,68-177
+  s_4700c3589e172a::t_460b37738d0165 48
+  s_4700c3589e172a::t_656239c9a1335a 5
+  s_4700c3589e172a::t_9da25a4e84c3a9 67
+mobile/src/features/insights/insights.ts
+  s_4700c3589e172a::t_2007df56c30d6e 45-61
+mobile/app.json
+  s_4700c3589e172a::t_a33e0df15ce517 5
+  s_4700c3589e172a::t_093622126955e1 40
+mobile/src/app/report/[date].tsx
+  s_4700c3589e172a::t_cd77cda8c9f96f 16-17
+  s_4700c3589e172a::t_35dd1401273eca 191-203
+  s_4700c3589e172a::t_0004b2e56b6138 163
+mobile/src/app/(tabs)/settings.tsx
+  s_4700c3589e172a::t_d27d7fdb35fea0 46
+mobile/src/components/day-detail.tsx
+  s_4700c3589e172a::t_6c071fcb7b1cbf 4
+  s_4700c3589e172a::t_0802fb9b2ff076 1-3,5-127
+mobile/src/db/transactions.ts
+  s_4700c3589e172a::t_af15e25d9a524f 208-216
+mobile/src/lib/merchants.ts
+  s_4700c3589e172a::t_b371505b514444 94,97-101
+  s_4700c3589e172a::t_fdbad08ead7163 81-83
+mobile/src/lib/dates.ts
+  s_4700c3589e172a::t_751ab97bdf779c 94-108
+mobile/src/components/glass-tab-bar.tsx
+  s_4700c3589e172a::t_c13038b42e13c4 70-72,81-118
+  s_4700c3589e172a::t_3fb6bdfdb2c150 4,6,12
+  s_4700c3589e172a::t_5ac88a81db6f2e 119-121
+mobile/src/db/hooks.ts
+  s_4700c3589e172a::t_1144a876ec5a9d 4-5
+  s_4700c3589e172a::t_e076281efeacc0 73-85,88-89,91-93,95-98,100,103-107
+  s_4700c3589e172a::t_5ac0e0972a4442 108
+mobile/src/components/charts.tsx
+  s_4700c3589e172a::t_f490d9d3c40c07 2-3,7-8,11
+  s_4700c3589e172a::t_521457dfd50bd0 47-49,52
+  s_4700c3589e172a::t_09813292385b36 22-41,44-45,50,53-90,93-100,103-112,136-174
+  s_4700c3589e172a::t_5ed98c5c5287fe 115,117-127
+  s_4700c3589e172a::t_cd00a63b661154 1
+mobile/src/features/__tests__/analysis.test.ts
+  s_4700c3589e172a::t_fdcc44fbf05179 82-92
+  s_4700c3589e172a::t_2f25b3a1478a16 1
+mobile/src/components/screen.tsx
+  s_4700c3589e172a::t_c94662212ad1b5 45
+  s_4700c3589e172a::t_58e89a31c05151 30-31,37-44,46-68
+  s_4700c3589e172a::t_b1359bc896342f 80
+  s_4700c3589e172a::t_1e5bf3c98bf513 2
+  s_4700c3589e172a::t_4e8958ad9e0329 3-11
+  s_4700c3589e172a::t_9a3ba36f7534d3 34-36
+mobile/src/components/money.tsx
+  s_4700c3589e172a::t_9ade920f25380b 41-46
+mobile/src/app/(tabs)/index.tsx
+  s_4700c3589e172a::t_5c495e0fed20a5 97
+  s_4700c3589e172a::t_bad44ed3eab6ab 4
+mobile/src/app/(tabs)/insights.tsx
+  s_4700c3589e172a::t_91a33dcd2c7a71 247-264
+  s_4700c3589e172a::t_b50b777fd5546b 34-35,38,43-54
+  s_4700c3589e172a::t_403537bb33d306 2-3,9
+  s_4700c3589e172a::t_28d966715eff01 130,132,134
+  s_4700c3589e172a::t_e2c251b0107abe 67
+  s_4700c3589e172a::t_61f7df0d3c1656 55
+  s_4700c3589e172a::t_9f288e7a4c1207 154,156
+  s_4700c3589e172a::t_6fce115334f600 4,6-7,10,13-16,18-29
+  s_4700c3589e172a::t_06dd2df988972e 89-90,97-128,131,133,135,137,139-151,153,155,157,165-166
+  s_4700c3589e172a::t_d81a50daf41c74 56
+mobile/src/lib/__tests__/merchants.test.ts
+  s_4700c3589e172a::t_0179cb267f5839 1-19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f2d5569428a4c830cef052092f1746e57af10220",
+  "prompts": {},
+  "sessions": {
+    "s_4700c3589e172a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "457af9fd-7ea9-48ff-93b3-a9019632dbb3",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Dipendra Bhardwaj <dipu.sharma.1122@gmail.com>"
+    }
+  }
+}
