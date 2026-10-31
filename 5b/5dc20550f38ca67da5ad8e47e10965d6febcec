@@ -1,0 +1,109 @@
+mobile/src/features/budget/fixed-cost-prompt.tsx
+  s_4700c3589e172a::t_39ae0e7e892c94 1-80
+mobile/src/features/report/report.ts
+  s_4700c3589e172a::t_36aa402d3835bf 3
+  s_4700c3589e172a::t_cb48a45d06afac 37-38
+  s_4700c3589e172a::t_b9a0cd015f303f 9
+mobile/src/features/notifications/spend-alert-text.ts
+  s_4700c3589e172a::t_438634b63e39e4 1-28
+mobile/src/features/budget/refunds.ts
+  s_4700c3589e172a::t_a171d4addf8243 1-78
+mobile/src/db/transactions.ts
+  s_4700c3589e172a::t_8d26e5ee61f92b 5-6
+  s_4700c3589e172a::t_e0211c50f5fe90 257-268
+  s_4700c3589e172a::t_742094d5fc4214 308-312,314-315,317
+  s_4700c3589e172a::t_79499030c48e37 210-256
+  s_4700c3589e172a::t_e46f5692fb3d32 3
+mobile/src/app/(tabs)/index.tsx
+  s_4700c3589e172a::t_b539d9f5401899 17
+  s_4700c3589e172a::t_02997e01ac564b 139-140
+  s_4700c3589e172a::t_8fabf6a6b67fff 194-197
+  s_4700c3589e172a::t_b42fd43374f6cb 163-164
+  s_4700c3589e172a::t_516536d0d7128c 18
+mobile/src/features/budget/__tests__/fixed-costs.test.ts
+  s_4700c3589e172a::t_a89539ab766f33 1-63,65,71-73
+  s_4700c3589e172a::t_630bc1bc7c23e2 64,66-70
+mobile/src/app/(tabs)/settings.tsx
+  s_4700c3589e172a::t_691a589cf2ec59 88-104,107
+mobile/src/features/budget/fixed-costs.ts
+  s_4700c3589e172a::t_e29dad5611d92b 1-74
+mobile/src/features/budget/__tests__/refunds.test.ts
+  s_4700c3589e172a::t_bd382fd25f8004 1-82
+mobile/src/features/insights/insights.ts
+  s_4700c3589e172a::t_3d478721f74ad3 1-2
+  s_4700c3589e172a::t_1c7964c3ef1786 13-14
+  s_4700c3589e172a::t_d6b58d81edc816 64-94
+mobile/src/features/notifications/__tests__/alerts.test.ts
+  s_4700c3589e172a::t_af5bd233bf4ac2 1-46
+mobile/src/features/budget/fixed-cost-actions.ts
+  s_4700c3589e172a::t_96ec7ac4c95a66 1-25
+mobile/src/features/sync/sync.ts
+  s_4700c3589e172a::t_c4546e9d6e4d12 56
+  s_4700c3589e172a::t_dc953d7703673a 5
+mobile/src/components/txn-row.tsx
+  s_4700c3589e172a::t_6fd2f8a8d488fe 98
+  s_4700c3589e172a::t_cf6947855e557d 12
+  s_4700c3589e172a::t_ab4f8dda3f2982 61,63,73
+mobile/src/app/_layout.tsx
+  s_4700c3589e172a::t_f65c4172ceeaad 61-62
+  s_4700c3589e172a::t_3427f55e47f649 18-19
+  s_4700c3589e172a::t_0113d64d3e0245 95
+mobile/src/features/subscriptions/reminders.ts
+  s_4700c3589e172a::t_7b67453a09589c 1-20
+mobile/src/features/__tests__/analysis.test.ts
+  s_4700c3589e172a::t_ba9b597328b9e1 100-107
+  s_4700c3589e172a::t_440cf7e463a91a 1-8
+mobile/src/db/hooks.ts
+  s_4700c3589e172a::t_0067e38f464a3b 46,49
+  s_4700c3589e172a::t_e9959022e89fe4 47-48,60-64
+  s_4700c3589e172a::t_cda2ed400cfb01 4
+  s_4700c3589e172a::t_4c0369daf727ba 65-66
+mobile/src/app/transactions.tsx
+  s_4700c3589e172a::t_46482e2744886f 91-95
+  s_4700c3589e172a::t_0d1277f04c51f1 106
+  s_4700c3589e172a::t_ef4feaac503420 1-90,96-105,107-186,188-218
+  s_4700c3589e172a::t_bc711bc0a33201 187
+mobile/src/store/app-store.ts
+  s_4700c3589e172a::t_4d176959a37c20 39-42
+  s_4700c3589e172a::t_d25f10fb1a7b08 6-13
+  s_4700c3589e172a::t_e93d582c474ffa 130,132-133
+  s_4700c3589e172a::t_c0e995faabb059 97-98,101-109
+  s_4700c3589e172a::t_b2dd4c20d9b6ef 56-57
+  s_4700c3589e172a::t_d0ada96bd97420 161,169
+  s_4700c3589e172a::t_9216019b56409d 148
+  s_4700c3589e172a::t_f33a862b5991bc 72-73,75
+mobile/src/features/insights/streak-card.tsx
+  s_4700c3589e172a::t_ce24df010f5539 36
+  s_4700c3589e172a::t_bea93dbf6ff57c 1-35,37-68
+mobile/src/features/notifications/renewals.ts
+  s_4700c3589e172a::t_1260b4464c2db4 1-68
+mobile/src/features/notifications/spend-alerts.ts
+  s_4700c3589e172a::t_591be36524126b 1-79
+mobile/src/features/sync/background.ts
+  s_4700c3589e172a::t_c638e05478981d 2,6,12-14,22,30,33-42
+mobile/src/app/(tabs)/insights.tsx
+  s_4700c3589e172a::t_67a4036a301e54 196,202,204,206-207,214-215
+  s_4700c3589e172a::t_d5514d52c49d7f 205
+  s_4700c3589e172a::t_54584121551152 226-227
+  s_4700c3589e172a::t_bd7485aef1ef89 4
+  s_4700c3589e172a::t_f08d4129b86d8c 2
+  s_4700c3589e172a::t_fb2c99a1b3d62c 170-181,189
+mobile/app.json
+  s_4700c3589e172a::t_9ea8d59909abec 5,40
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5b5dc20550f38ca67da5ad8e47e10965d6febcec",
+  "prompts": {},
+  "sessions": {
+    "s_4700c3589e172a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "457af9fd-7ea9-48ff-93b3-a9019632dbb3",
+        "model": "unknown"
+      },
+      "human_author": "Dipendra Bhardwaj <dipu.sharma.1122@gmail.com>"
+    }
+  }
+}
