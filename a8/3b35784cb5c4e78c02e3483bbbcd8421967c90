@@ -1,0 +1,23 @@
+.claude/settings.json
+  s_9713abbff5e1cc::t_28ec78a8de4582 1-16
+CLAUDE.md
+  s_9713abbff5e1cc::t_283d47d5880d56 21-23
+.claude/hooks/release-check.sh
+  s_9713abbff5e1cc::t_0c128c7569c339 1-28
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a83b35784cb5c4e78c02e3483bbbcd8421967c90",
+  "prompts": {},
+  "sessions": {
+    "s_9713abbff5e1cc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "cf3a2e81-8ed1-4e00-a7b9-fea30f16841d",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Dipendra Bhardwaj <dipu.sharma.1122@gmail.com>"
+    }
+  }
+}
