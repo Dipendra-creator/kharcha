@@ -1,0 +1,73 @@
+mobile/src/store/app-store.ts
+  s_9713abbff5e1cc::t_e802477c44ba22 131,137-143,146
+docs/play-store-sms-declaration.md
+  s_9713abbff5e1cc::t_475810e583e764 13,24,27-30
+mobile/src/db/transactions.ts
+  s_9713abbff5e1cc::t_0e1d1e354d2fd6 158
+mobile/src/app/report/[date].tsx
+  s_9713abbff5e1cc::t_fd0cd8679529bc 55,67
+mobile/src/lib/merchants.ts
+  s_9713abbff5e1cc::t_76028274dc1bea 32-40
+mobile/src/app/settings/sources.tsx
+  s_9713abbff5e1cc::t_c26b564a4466e2 2-3,14,63,72
+mobile/src/app/settings/delete.tsx
+  s_9713abbff5e1cc::t_af48dc82059e52 8,17,20,34,37
+CLAUDE.md
+  s_9713abbff5e1cc::t_b7f3061e3c7a9b 1-41
+mobile/src/features/updates/update-card.tsx
+  s_9713abbff5e1cc::t_d21bb114abc89f 1-104
+mobile/src/app/(tabs)/settings.tsx
+  s_9713abbff5e1cc::t_84c8418d4554ca 11,25,75,97-98
+  s_9713abbff5e1cc::t_28b8e3308b0b05 99
+mobile/src/db/client.ts
+  s_9713abbff5e1cc::t_adf2431eb7c8be 3,78-79
+mobile/src/features/privacy/data.ts
+  s_9713abbff5e1cc::t_b215d9aca575da 1-40
+mobile/src/app/onboarding/permissions.tsx
+  s_9713abbff5e1cc::t_af48dc82059e52 62,102-104
+mobile/src/features/sync/sync.ts
+  s_9713abbff5e1cc::t_4d74dc1936abeb 22,34,43
+mobile/src/features/report/report.ts
+  s_9713abbff5e1cc::t_0e1d1e354d2fd6 33
+mobile/src/features/updates/release.ts
+  s_9713abbff5e1cc::t_326fbd9b8b456c 1-58
+mobile/src/app/settings/privacy.tsx
+  s_9713abbff5e1cc::t_af48dc82059e52 8,28,50
+mobile/src/features/updates/updater.ts
+  s_9713abbff5e1cc::t_43cbfc13721fb4 1-97
+mobile/app.json
+  s_9713abbff5e1cc::t_a81906f4cd5446 5,15,31-32,38
+mobile/src/features/sms/parser.ts
+  s_9713abbff5e1cc::t_0e1d1e354d2fd6 41,198
+mobile/src/app/(tabs)/index.tsx
+  s_9713abbff5e1cc::t_fd0cd8679529bc 209,248
+mobile/scripts/release.sh
+  s_9713abbff5e1cc::t_80578e60eba460 1-75
+README.md
+  s_9713abbff5e1cc::t_d8300651aa7595 3,15,17-18,21,23,25,27-29,35,38,40,42,46,49,51,53,55,57-61,63,65
+mobile/src/features/sms/sms-sync.ts
+  s_9713abbff5e1cc::t_7fb3c85b9bcb4d 90
+  s_9713abbff5e1cc::t_2358b9f5dc6e1f 13,20,31-32,60,64,67
+mobile/src/features/sync/sources.ts
+  s_9713abbff5e1cc::t_4d74dc1936abeb 6
+mobile/src/features/notifications/nightly.ts
+  s_9713abbff5e1cc::t_0c4536277d01f1 9-11,30,63
+mobile/src/features/updates/__tests__/release.test.ts
+  s_9713abbff5e1cc::t_5d2d27981dd306 1-40
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a7b8667a2acc7423e42afe733631c1575984b42b",
+  "prompts": {},
+  "sessions": {
+    "s_9713abbff5e1cc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "cf3a2e81-8ed1-4e00-a7b9-fea30f16841d",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Dipendra Bhardwaj <dipu.sharma.1122@gmail.com>"
+    }
+  }
+}
