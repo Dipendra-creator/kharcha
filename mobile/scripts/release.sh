@@ -50,7 +50,7 @@ APK=android/app/build/outputs/apk/release/app-release.apk
 
 step "Verifying the signature"
 APKSIGNER=$(ls -d "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -1)
-CERT=$("$APKSIGNER" verify --print-certs "$APK" | sed -n 's/^Signer #1 certificate SHA-256 digest: //p')
+CERT=$("$APKSIGNER" verify --print-certs "$APK" | grep -m1 'certificate SHA-256 digest:' | sed 's/.*digest: //')
 [[ $CERT == "$RELEASE_CERT_SHA256" ]] ||
   die "APK is signed with ${CERT:-nothing}, not the Kharcha release key (KHARCHA_UPLOAD_* in ~/.gradle/gradle.properties)"
 
