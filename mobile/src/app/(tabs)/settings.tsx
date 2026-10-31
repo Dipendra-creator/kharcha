@@ -8,6 +8,7 @@ import { AppText } from '@/components/text';
 import { Card, Row, Segmented, SectionTitle } from '@/components/ui';
 import { useCycleBudget, useDbQuery } from '@/db/hooks';
 import { countReview } from '@/db/transactions';
+import { UpdateCard } from '@/features/updates/update-card';
 import { formatHour, ordinal } from '@/lib/dates';
 import { formatINR } from '@/lib/money';
 import { useApp, type RoastIntensity, type ThemePref } from '@/store/app-store';
@@ -17,13 +18,11 @@ export default function SettingsScreen() {
   const profile = useApp((s) => s.profile);
   const settings = useApp((s) => s.settings);
   const setSettings = useApp((s) => s.setSettings);
-  const serverOn = useApp((s) => s.sync.serverOpen || !!s.account);
-  const gmail = useApp((s) => s.sync.gmail);
   const budget = useCycleBudget();
   const reviewCount = useDbQuery(() => countReview(), []);
   const fixed = profile.fixedCosts.reduce((s, f) => s + f.amount, 0);
 
-  const sources = [settings.smsEnabled ? 'SMS' : null, gmail.connected ? 'Gmail' : null].filter(Boolean).join(' + ') || 'Manual only';
+  const sources = settings.smsEnabled ? 'SMS' : settings.notificationFallback ? 'Notifications' : 'Manual only';
 
   return (
     <Screen tabs>
@@ -73,16 +72,7 @@ export default function SettingsScreen() {
             onChange={(roast) => setSettings({ roast })}
           />
         </View>
-        <View>
-          <Row icon="time-outline" title="Report time" value={formatHour(settings.reportHour, settings.reportMinute)} onPress={() => router.push('/settings/report-time')} />
-          <Row
-            icon="sparkles-outline"
-            title="AI verdicts"
-            subtitle={serverOn ? 'Fresh Hinglish lines from the server LLM' : 'Connect to the server under Sources'}
-            toggle={{ value: settings.aiVerdicts, onChange: (aiVerdicts) => setSettings({ aiVerdicts }) }}
-            last
-          />
-        </View>
+        <Row icon="time-outline" title="Report time" value={formatHour(settings.reportHour, settings.reportMinute)} onPress={() => router.push('/settings/report-time')} last />
       </Card>
 
       <SectionTitle title="Alerts" />
@@ -92,12 +82,6 @@ export default function SettingsScreen() {
           title="Spend alerts"
           subtitle="When new spends are found in the background, with what's left today"
           toggle={{ value: settings.spendAlerts, onChange: (spendAlerts) => setSettings({ spendAlerts }) }}
-        />
-        <Row
-          icon="repeat-outline"
-          title="Renewal reminders"
-          subtitle="The day before a subscription charges you"
-          toggle={{ value: settings.renewalReminders, onChange: (renewalReminders) => setSettings({ renewalReminders }) }}
           last
         />
       </Card>
@@ -109,6 +93,9 @@ export default function SettingsScreen() {
         <Row icon="file-tray-full-outline" title="Review inbox" value={reviewCount ? String(reviewCount) : 'Empty'} onPress={() => router.push('/review')} />
         <Row icon="shield-checkmark-outline" title="Privacy & your data" subtitle="What we read, export, delete everything" onPress={() => router.push('/settings/privacy')} last />
       </Card>
+
+      <SectionTitle title="App updates" />
+      <UpdateCard />
 
       <SectionTitle title="Appearance" />
       <Segmented<ThemePref>

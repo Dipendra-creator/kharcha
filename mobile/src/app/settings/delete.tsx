@@ -5,26 +5,21 @@ import { ScrollView, View } from 'react-native';
 import { ScreenHeader } from '@/components/screen';
 import { AppText } from '@/components/text';
 import { Button } from '@/components/ui';
-import { deleteEverything } from '@/features/account/data';
+import { deleteEverything } from '@/features/privacy/data';
 import { haptic } from '@/lib/haptics';
-import { useApp } from '@/store/app-store';
 import { useTheme, withAlpha } from '@/theme/theme';
 import { radii, spacing } from '@/theme/tokens';
 
 export default function DeleteSheet() {
   const { c } = useTheme();
-  const serverOn = useApp((s) => s.sync.serverOpen || !!s.account);
   const [busy, setBusy] = useState(false);
-  const [serverFailed, setServerFailed] = useState(false);
 
-  const run = async (localOnly: boolean) => {
+  const run = async () => {
     setBusy(true);
     try {
-      await deleteEverything({ localOnly });
+      await deleteEverything();
       haptic.warning();
       // The onboarding guard takes over once the store resets.
-    } catch {
-      setServerFailed(true);
     } finally {
       setBusy(false);
     }
@@ -36,19 +31,10 @@ export default function DeleteSheet() {
       <View style={{ flexDirection: 'row', gap: spacing.md, padding: spacing.lg, borderRadius: radii.md, backgroundColor: withAlpha(c.over, 0.12) }}>
         <Ionicons name="warning" size={22} color={c.over} />
         <AppText variant="caption" style={{ flex: 1 }}>
-          This removes every transaction, rule, report and setting on this phone
-          {serverOn ? ', plus all your data on the Kharcha server, and revokes Gmail access' : ''}. It can&apos;t be undone.
+          This removes every transaction, rule, report and setting on this phone. It can&apos;t be undone.
         </AppText>
       </View>
-      {serverFailed ? (
-        <AppText variant="caption" color="over" style={{ marginTop: spacing.lg }}>
-          Couldn&apos;t reach the server, so nothing was deleted. Try again when you&apos;re online, or delete only what&apos;s on this phone.
-        </AppText>
-      ) : null}
-      <Button title="Delete everything" variant="danger" icon="trash" loading={busy} onPress={() => run(false)} style={{ marginTop: spacing.xl }} />
-      {serverFailed ? (
-        <Button title="Delete on this phone only" variant="secondary" onPress={() => run(true)} style={{ marginTop: spacing.sm }} />
-      ) : null}
+      <Button title="Delete everything" variant="danger" icon="trash" loading={busy} onPress={run} style={{ marginTop: spacing.xl }} />
     </ScrollView>
   );
 }

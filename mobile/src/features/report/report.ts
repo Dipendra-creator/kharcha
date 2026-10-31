@@ -30,7 +30,7 @@ export function buildReport(opts: {
   intensity: RoastIntensity;
   tomorrowBudget: number;
   rollover: boolean;
-  /** A verdict saved earlier for this day (e.g. from the LLM) wins over the rule line. */
+  /** A verdict saved earlier for this day wins over the rule line. */
   savedVerdict?: string | null;
 }): NightlyReport {
   const { day, txns, intensity, tomorrowBudget, rollover, savedVerdict } = opts;

@@ -34,12 +34,8 @@ export type Settings = {
   /** Read payment notifications instead (Play Store fallback when READ_SMS isn't allowed). */
   notificationFallback: boolean;
   backgroundSync: boolean;
-  /** Ask the server LLM for a fresh verdict line (falls back to on-device lines). */
-  aiVerdicts: boolean;
   /** Notify after a background sync finds new spends, with what's left today. */
   spendAlerts: boolean;
-  /** Notify the day before a detected subscription renews. */
-  renewalReminders: boolean;
 };
 
 export type SyncState = {
@@ -48,17 +44,9 @@ export type SyncState = {
   smsCursor: number | null;
   /** Newest payment notification already processed (notification fallback). */
   notifCursor: number | null;
-  /** Server change sequence already pulled. */
-  serverCursor: number;
-  /** The server runs without sign-in (KHARCHA_AUTH_MODE=none); learned from /healthz. */
-  serverOpen: boolean;
-  gmail: { connected: boolean; email: string | null };
   /** Rows created up to here have been seen (in the app or in a spend alert); null until the first check. */
   alertCursor: number | null;
 };
-
-/** Signed-in server account. The session token itself is in SecureStore (features/account/session). */
-export type Account = { email: string; name: string | null } | null;
 
 type State = {
   onboarded: boolean;
@@ -68,14 +56,12 @@ type State = {
   profile: Profile;
   settings: Settings;
   sync: SyncState;
-  account: Account;
   /** Transactions the user said are not a fixed cost, so they aren't asked about again. */
   fixedCostDismissed: string[];
   setProfile: (patch: Partial<Profile>) => void;
   dismissFixedCost: (txnId: string) => void;
   setSettings: (patch: Partial<Settings>) => void;
   setSync: (patch: Partial<SyncState>) => void;
-  setAccount: (account: Account) => void;
   completeOnboarding: () => void;
   giveConsent: () => void;
   reset: () => void;
@@ -93,18 +79,13 @@ export const DEFAULT_SETTINGS: Settings = {
   smsEnabled: false,
   notificationFallback: false,
   backgroundSync: true,
-  aiVerdicts: true,
   spendAlerts: true,
-  renewalReminders: true,
 };
 
 const DEFAULT_SYNC: SyncState = {
   lastSyncAt: null,
   smsCursor: null,
   notifCursor: null,
-  serverCursor: 0,
-  serverOpen: false,
-  gmail: { connected: false, email: null },
   alertCursor: null,
 };
 
@@ -126,14 +107,12 @@ export const useApp = create<State>()(
       profile: DEFAULT_PROFILE,
       settings: DEFAULT_SETTINGS,
       sync: DEFAULT_SYNC,
-      account: null,
       fixedCostDismissed: [],
       setProfile: (patch) => set((s) => ({ profile: { ...s.profile, ...patch } })),
       // Only the latest few matter: candidates come from the last month.
       dismissFixedCost: (txnId) => set((s) => ({ fixedCostDismissed: [txnId, ...s.fixedCostDismissed].slice(0, 50) })),
       setSettings: (patch) => set((s) => ({ settings: { ...s.settings, ...patch } })),
       setSync: (patch) => set((s) => ({ sync: { ...s.sync, ...patch } })),
-      setAccount: (account) => set({ account }),
       completeOnboarding: () => set((s) => ({ onboarded: true, trackingStart: s.trackingStart ?? Date.now() })),
       giveConsent: () => set({ consentAt: Date.now() }),
       reset: () =>
@@ -144,28 +123,33 @@ export const useApp = create<State>()(
           profile: DEFAULT_PROFILE,
           settings: DEFAULT_SETTINGS,
           sync: DEFAULT_SYNC,
-          account: null,
           fixedCostDismissed: [],
         }),
     }),
     {
       name: 'kharcha.app',
-      version: 2,
+      version: 3,
       storage: kvStorage,
       migrate: (persisted, version) => {
         const p = (persisted ?? {}) as Partial<State>;
         // v1 had no trackingStart: start tracking from the upgrade, not the cycle start.
         if (version < 2 && p.onboarded && !p.trackingStart) p.trackingStart = Date.now();
+        // v3 removed the server: drop its account, sync state and settings.
+        if (version < 3) {
+          const old = p as Record<string, unknown>;
+          delete old.account;
+          for (const k of ['aiVerdicts', 'renewalReminders']) delete (old.settings as Record<string, unknown> | undefined)?.[k];
+          for (const k of ['serverCursor', 'serverOpen', 'gmail']) delete (old.sync as Record<string, unknown> | undefined)?.[k];
+        }
         return p as State;
       },
-      partialize: ({ onboarded, trackingStart, consentAt, profile, settings, sync, account, fixedCostDismissed }) => ({
+      partialize: ({ onboarded, trackingStart, consentAt, profile, settings, sync, fixedCostDismissed }) => ({
         onboarded,
         trackingStart,
         consentAt,
         profile,
         settings,
         sync,
-        account,
         fixedCostDismissed,
       }),
       merge: (persisted, current) => {

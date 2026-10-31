@@ -59,16 +59,10 @@ export default function PermissionsStep() {
           <PermissionCard
             icon="chatbubble-ellipses"
             title="SMS isn't available on iPhone"
-            body="iOS doesn't let apps read SMS. Connect Gmail for receipts, and add anything else in two taps."
+            body="iOS doesn't let apps read SMS. Add spends in two taps with +."
             status="idle"
           />
         )}
-        <PermissionCard
-          icon="mail"
-          title="Order emails (Gmail)"
-          body="Read-only access to receipts from Swiggy, Zomato, Amazon, Uber and similar. Connect it in Settings → Sources after setup."
-          status="idle"
-        />
         <PermissionCard
           icon="notifications"
           title="Nightly report"
@@ -105,8 +99,9 @@ export default function PermissionsStep() {
           {consent ? <Ionicons name="checkmark" size={18} color={c.onAccent} /> : null}
         </View>
         <AppText variant="caption" color="textMuted" style={{ flex: 1 }}>
-          I consent to Kharcha processing my transaction data to calculate my budget (DPDP Act 2023). Only extracted
-          transactions — never raw SMS or emails — are stored. I can export or delete everything any time from Settings.
+          I consent to Kharcha processing my transaction data on this phone to calculate my budget (DPDP Act 2023). Only
+          extracted transactions — never raw SMS — are stored, and nothing leaves the phone. I can export or delete
+          everything any time from Settings.
         </AppText>
       </Pressable>
     </OnboardingStep>

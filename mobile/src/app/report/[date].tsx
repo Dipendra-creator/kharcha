@@ -21,7 +21,6 @@ import { listDay, spentByDay } from '@/db/transactions';
 import { computeCycleBudget } from '@/features/budget/budget';
 import { buildReport } from '@/features/report/report';
 import { SHARE_HEIGHT, SHARE_WIDTH, ShareCard } from '@/features/report/share-card';
-import { useAiVerdict } from '@/features/roast/use-ai-verdict';
 import { categoryMeta } from '@/lib/categories';
 import { addDays, cycleFor, dayKey, formatDate, fromDayKey } from '@/lib/dates';
 import { formatINR } from '@/lib/money';
@@ -53,7 +52,7 @@ export default function ReportScreen() {
   const tomorrow = computeCycleBudget(input, data.spent, addDays(day, 1));
   const savedValid = data.saved && Math.round(data.saved.spent) === Math.round(cb.today.spent) ? data.saved : null;
 
-  const ruleReport = buildReport({
+  const report = buildReport({
     day: cb.today,
     txns: data.txns,
     intensity: roast,
@@ -61,13 +60,11 @@ export default function ReportScreen() {
     rollover,
     savedVerdict: savedValid?.verdict,
   });
-  const ai = useAiVerdict(ruleReport, !savedValid || savedValid.verdictSource === 'rules');
-  const report = ai ? { ...ruleReport, verdict: ai } : ruleReport;
 
   // Lock in the day's verdict once the report time has passed (or for past days).
   const isPast = key < dayKey(now);
   const due = isPast || now.getHours() * 60 + now.getMinutes() >= reportHour * 60 + reportMinute;
-  const verdictSource = ai ? 'llm' : (savedValid?.verdictSource ?? 'rules');
+  const verdictSource = savedValid?.verdictSource ?? 'rules';
   useEffect(() => {
     if (!due) return;
     if (data.saved?.verdict === report.verdict && data.saved.verdictSource === verdictSource) return;

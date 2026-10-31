@@ -1,5 +1,4 @@
 import { spendAlertText } from '@/features/notifications/spend-alert-text';
-import { REMIND_HOUR, renewalReminders } from '@/features/subscriptions/reminders';
 
 describe('spend alerts', () => {
   it('names a single spend and what is left', () => {
@@ -23,24 +22,5 @@ describe('spend alerts', () => {
 
   it('says nothing without new spends', () => {
     expect(spendAlertText([], { remaining: 0, ratio: 1 })).toBeNull();
-  });
-});
-
-describe('renewal reminders', () => {
-  const now = new Date(2026, 9, 31, 12).getTime();
-  const sub = (merchant: string, nextDate: Date, dismissed = false) => ({ merchant, nextDate: nextDate.getTime(), dismissed });
-
-  it('reminds at 10 AM the day before, for upcoming renewals only', () => {
-    const reminders = renewalReminders(
-      [
-        sub('ChatGPT', new Date(2026, 10, 26, 20, 28)),
-        sub('Hidden', new Date(2026, 10, 10), true),
-        sub('Far away', new Date(2027, 2, 1)),
-        // Tomorrow's renewal: its 10 AM reminder today has already passed.
-        sub('Tomorrow', new Date(2026, 10, 1, 9)),
-      ],
-      now,
-    );
-    expect(reminders.map((r) => [r.sub.merchant, r.at])).toEqual([['ChatGPT', new Date(2026, 10, 25, REMIND_HOUR)]]);
   });
 });

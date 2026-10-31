@@ -1,5 +1,4 @@
 import { findSelfTransfers, parseSms } from '../parser';
-import { redact } from '../redact';
 import { NON_TRANSACTIONS, TRANSACTIONS } from '../__fixtures__/sms';
 
 const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -85,17 +84,5 @@ describe('details', () => {
       { type: 'debit', amount: 250_00, accountHint: 'HDFC Bank a/c ••1234', occurredAt: t },
     ]);
     expect([...pairs].sort()).toEqual([0, 1]);
-  });
-});
-
-describe('redaction before upload', () => {
-  it('strips OTPs, phone numbers, emails and long account numbers but keeps refs', () => {
-    const out = redact(
-      'OTP is 482913. A/c 123456781234 debited Rs 500 to 9876543210@ybl, call +91 9988776655 or mail a.b@gmail.com. UPI Ref 430312345678',
-    );
-    expect(out).not.toMatch(/482913|123456781234|9876543210|9988776655|a\.b@gmail\.com/);
-    expect(out).toContain('XX1234');
-    expect(out).toContain('430312345678');
-    expect(out).toContain('[phone]@ybl');
   });
 });

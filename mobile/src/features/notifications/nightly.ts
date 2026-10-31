@@ -6,6 +6,9 @@ import { dayKey } from '@/lib/dates';
 
 export const NIGHTLY_CHANNEL = 'nightly-report';
 const PREFIX = 'nightly-';
+/** Renewal reminders were removed in 0.4.0; ones scheduled by older versions are cleared with the nightly ones. */
+const RENEWAL_PREFIX = 'renewal-';
+const RENEWAL_CHANNEL = 'renewals';
 
 let handlerSet = false;
 
@@ -24,6 +27,7 @@ export function configureNotifications(): void {
 
 async function ensureChannel(): Promise<void> {
   if (Platform.OS !== 'android') return;
+  await Notifications.deleteNotificationChannelAsync(RENEWAL_CHANNEL).catch(() => {});
   await Notifications.setNotificationChannelAsync(NIGHTLY_CHANNEL, {
     name: 'Nightly report',
     description: 'Your 10 PM budget verdict',
@@ -56,7 +60,7 @@ export async function scheduleNightlyReports(opts: { hour: number; minute: numbe
   const scheduled = await Notifications.getAllScheduledNotificationsAsync();
   await Promise.all(
     scheduled
-      .filter((n) => n.identifier.startsWith(PREFIX))
+      .filter((n) => n.identifier.startsWith(PREFIX) || n.identifier.startsWith(RENEWAL_PREFIX))
       .map((n) => Notifications.cancelScheduledNotificationAsync(n.identifier)),
   );
 

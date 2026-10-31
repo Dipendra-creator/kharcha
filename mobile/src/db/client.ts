@@ -1,6 +1,6 @@
 import { openDatabaseSync } from 'expo-sqlite';
 
-/** Single local database. Everything works offline; the server only ever sees extracted transactions. */
+/** Single local database. Everything stays on the phone. */
 export const db = openDatabaseSync('kharcha.db');
 
 const MIGRATIONS: string[] = [
@@ -75,6 +75,8 @@ const MIGRATIONS: string[] = [
     errors TEXT
   );
   `,
+  // Subscription detection was removed in 0.4.0.
+  `DROP TABLE IF EXISTS subscriptions;`,
 ];
 
 export function migrate(): void {
@@ -95,7 +97,6 @@ export function wipeDatabase(): void {
     db.execSync(`
       DELETE FROM transactions;
       DELETE FROM merchant_rules;
-      DELETE FROM subscriptions;
       DELETE FROM daily_summaries;
       DELETE FROM sync_runs;
     `);

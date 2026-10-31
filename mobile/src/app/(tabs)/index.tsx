@@ -206,7 +206,7 @@ export default function TodayScreen() {
           <EmptyState
             icon="leaf-outline"
             title="No kharcha yet"
-            body={`Your full ${formatINR(today.budget, { decimals: 0 })} is waiting. Spends from SMS and email land here after a sync; add cash with +.`}
+            body={`Your full ${formatINR(today.budget, { decimals: 0 })} is waiting. Spends from SMS land here after a sync; add cash with +.`}
           />
         ) : (
           txns.map((t) => (
@@ -245,7 +245,7 @@ function SyncResult() {
     };
   }, []);
   if (!summary) return null;
-  const added = summary.smsAdded + summary.pulled;
+  const added = summary.smsAdded;
   const text = summary.errors.length
     ? summary.errors[0]
     : added

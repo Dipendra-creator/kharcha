@@ -38,7 +38,7 @@ const VERB_DEBIT =
 const VERB_CREDIT = /\b(credited|received|deposited|cr\.?|added to)\b/i;
 const VERB_REFUND = /\b(refund(?:ed)?|reversal|reversed|cashback (?:of|credited))\b/i;
 
-/** Cheap rules that drop non-transactions before anything is parsed or sent to the LLM. */
+/** Cheap rules that drop non-transactions before anything is parsed. */
 export function prefilter(body: string): SkipReason | null {
   if (OTP.test(body)) return 'otp';
   if (FAILED.test(body)) return 'failed';
@@ -195,7 +195,7 @@ function categorise(merchant: string, payee: string | null, body: string, type: 
 
 // ── main ──────────────────────────────────────────────────────────────────────
 
-/** Parses one SMS with on-device rules. Confidence < 0.7 sends it to the LLM / review inbox. */
+/** Parses one SMS with on-device rules. Confidence < 0.7 sends it to the review inbox. */
 export function parseSms(body: string, sender: string): SmsResult {
   const skip = prefilter(body);
   if (skip) return { kind: 'skip', reason: skip };

@@ -1,6 +1,5 @@
 import { randomUUID } from 'expo-crypto';
 
-import type { DetectedSubscription } from '@/features/subscriptions/detect';
 import type { Category, TxnType } from '@/lib/types';
 import { bumpData } from '@/store/app-store';
 
@@ -37,67 +36,6 @@ export function listRules(): MerchantRule[] {
 
 export function deleteRule(id: string): void {
   db.runSync('DELETE FROM merchant_rules WHERE id = ?', id);
-  bumpData();
-}
-
-// ── subscriptions ─────────────────────────────────────────────────────────────
-
-export type StoredSubscription = DetectedSubscription & { dismissed: boolean };
-
-type SubRow = {
-  merchant: string;
-  category: string;
-  amount: number;
-  cycle: string;
-  last_date: number;
-  next_date: number;
-  count: number;
-  monthly_cost: number;
-  confidence: string;
-  dismissed: number;
-};
-
-/** Replaces detected subscriptions while keeping the user's "not a subscription" choices. */
-export function saveSubscriptions(found: DetectedSubscription[]): void {
-  db.withTransactionSync(() => {
-    db.runSync('DELETE FROM subscriptions WHERE dismissed = 0');
-    for (const s of found) {
-      db.runSync(
-        `INSERT INTO subscriptions (merchant, category, amount, cycle, last_date, next_date, count, monthly_cost, confidence)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-         ON CONFLICT(merchant) DO UPDATE SET amount = excluded.amount, cycle = excluded.cycle, last_date = excluded.last_date,
-           next_date = excluded.next_date, count = excluded.count, monthly_cost = excluded.monthly_cost, confidence = excluded.confidence`,
-        s.merchant,
-        s.category,
-        s.amount,
-        s.cycle,
-        s.lastDate,
-        s.nextDate,
-        s.count,
-        s.monthlyCost,
-        s.confidence,
-      );
-    }
-  });
-}
-
-export function listSubscriptions(): StoredSubscription[] {
-  return db.getAllSync<SubRow>('SELECT * FROM subscriptions ORDER BY next_date ASC').map((r) => ({
-    merchant: r.merchant,
-    category: r.category as Category,
-    amount: r.amount,
-    cycle: r.cycle as DetectedSubscription['cycle'],
-    lastDate: r.last_date,
-    nextDate: r.next_date,
-    count: r.count,
-    monthlyCost: r.monthly_cost,
-    confidence: r.confidence as DetectedSubscription['confidence'],
-    dismissed: !!r.dismissed,
-  }));
-}
-
-export function setSubscriptionDismissed(merchant: string, dismissed: boolean): void {
-  db.runSync('UPDATE subscriptions SET dismissed = ? WHERE merchant = ?', dismissed ? 1 : 0, merchant);
   bumpData();
 }
 

@@ -16,7 +16,6 @@ import { AppText } from './text';
 const ICONS: Record<string, [IconName, IconName]> = {
   index: ['home', 'home-outline'],
   insights: ['stats-chart', 'stats-chart-outline'],
-  subscriptions: ['repeat', 'repeat-outline'],
   settings: ['settings', 'settings-outline'],
 };
 

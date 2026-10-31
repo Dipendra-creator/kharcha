@@ -5,7 +5,6 @@ type MerchantInfo = {
   category: Category;
   /** Food delivery or quick-commerce — counted in the nightly "orders" stat. */
   quick?: boolean;
-  subscription?: boolean;
   aliases: string[];
 };
 
@@ -30,15 +29,15 @@ export const KNOWN_MERCHANTS: MerchantInfo[] = [
   { name: 'MakeMyTrip', category: 'travel', aliases: ['makemytrip', 'mmt'] },
   { name: 'IndiGo', category: 'travel', aliases: ['indigo', 'interglobe'] },
   { name: 'Metro', category: 'travel', aliases: ['dmrc', 'metro rail', 'bmrcl'] },
-  { name: 'Netflix', category: 'subscriptions', subscription: true, aliases: ['netflix'] },
-  { name: 'Spotify', category: 'subscriptions', subscription: true, aliases: ['spotify'] },
-  { name: 'JioHotstar', category: 'subscriptions', subscription: true, aliases: ['jiohotstar', 'hotstar', 'disney+ hotstar', 'novi digital'] },
-  { name: 'YouTube Premium', category: 'subscriptions', subscription: true, aliases: ['youtube', 'google youtube'] },
-  { name: 'Amazon Prime', category: 'subscriptions', subscription: true, aliases: ['prime video', 'amazon prime'] },
-  { name: 'Apple', category: 'subscriptions', subscription: true, aliases: ['apple.com/bill', 'apple services', 'itunes'] },
-  { name: 'Google One', category: 'subscriptions', subscription: true, aliases: ['google one', 'google storage'] },
-  { name: 'Claude', category: 'subscriptions', subscription: true, aliases: ['anthropic', 'claude.ai'] },
-  { name: 'ChatGPT', category: 'subscriptions', subscription: true, aliases: ['openai', 'chatgpt'] },
+  { name: 'Netflix', category: 'subscriptions', aliases: ['netflix'] },
+  { name: 'Spotify', category: 'subscriptions', aliases: ['spotify'] },
+  { name: 'JioHotstar', category: 'subscriptions', aliases: ['jiohotstar', 'hotstar', 'disney+ hotstar', 'novi digital'] },
+  { name: 'YouTube Premium', category: 'subscriptions', aliases: ['youtube', 'google youtube'] },
+  { name: 'Amazon Prime', category: 'subscriptions', aliases: ['prime video', 'amazon prime'] },
+  { name: 'Apple', category: 'subscriptions', aliases: ['apple.com/bill', 'apple services', 'itunes'] },
+  { name: 'Google One', category: 'subscriptions', aliases: ['google one', 'google storage'] },
+  { name: 'Claude', category: 'subscriptions', aliases: ['anthropic', 'claude.ai'] },
+  { name: 'ChatGPT', category: 'subscriptions', aliases: ['openai', 'chatgpt'] },
   { name: 'Airtel', category: 'bills', aliases: ['airtel', 'bharti airtel'] },
   { name: 'Jio', category: 'bills', aliases: ['jio', 'reliance jio'] },
   { name: 'Vi', category: 'bills', aliases: ['vodafone idea', 'vi postpaid'] },

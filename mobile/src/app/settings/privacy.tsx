@@ -5,8 +5,7 @@ import { View } from 'react-native';
 import { Screen, ScreenHeader } from '@/components/screen';
 import { AppText } from '@/components/text';
 import { Button, Card, Row, SectionTitle } from '@/components/ui';
-import { exportMyData } from '@/features/account/data';
-import { EMAIL_SENDERS } from '@/features/email/senders';
+import { exportMyData } from '@/features/privacy/data';
 import { FINANCE_SENDERS } from '@/features/sms/senders';
 import { formatDate } from '@/lib/dates';
 import { useApp } from '@/store/app-store';
@@ -26,8 +25,7 @@ export default function PrivacyScreen() {
 
       <Card style={{ gap: spacing.md }}>
         <Bullet title="On your phone" body="SMS are filtered and parsed on-device. OTPs, promos and personal messages are dropped and never leave the phone." />
-        <Bullet title="Before anything is uploaded" body="Phone numbers, account numbers (except the last 4 digits) and OTPs are stripped from the text sent for AI extraction." />
-        <Bullet title="On the server" body="Only extracted transactions are stored — never raw SMS or emails. Gmail access is read-only and limited to the senders below." />
+        <Bullet title="Nothing is uploaded" body="Kharcha has no server and no account. Your transactions, rules and reports live only in this phone's storage." />
       </Card>
 
       <SectionTitle title="What Kharcha reads" action={{ label: showSenders ? 'Hide' : 'Show all', onPress: () => setShowSenders((v) => !v) }} />
@@ -44,26 +42,12 @@ export default function PrivacyScreen() {
             ))}
           </View>
         ) : null}
-        <AppText variant="label" style={{ marginTop: spacing.sm }}>
-          Emails from {EMAIL_SENDERS.length} senders (read-only)
-        </AppText>
-        {showSenders ? (
-          EMAIL_SENDERS.map((s) => (
-            <AppText key={s.name} variant="caption" color="textMuted">
-              {s.name} — {s.domains.join(', ')}
-            </AppText>
-          ))
-        ) : (
-          <AppText variant="caption" color="textMuted">
-            {EMAIL_SENDERS.map((s) => s.name).join(', ')}
-          </AppText>
-        )}
       </Card>
 
       <SectionTitle title="Your data" />
       <Card padded={false} style={{ paddingHorizontal: spacing.lg }}>
         <Row icon="document-text-outline" title="Consent given" value={consentAt ? formatDate(new Date(consentAt), { year: true }) : 'Not recorded'} />
-        <Row icon="git-network-outline" title="Connected sources" subtitle="Turn SMS or Gmail off any time" onPress={() => router.push('/settings/sources')} last />
+        <Row icon="git-network-outline" title="Connected sources" subtitle="Turn SMS off any time" onPress={() => router.push('/settings/sources')} last />
       </Card>
 
       <Button

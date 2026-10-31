@@ -8,7 +8,6 @@ import {
 } from '@/features/insights/insights';
 import { buildReport } from '@/features/report/report';
 import { roastBand, ruleVerdict } from '@/features/roast/roast';
-import { detectSubscriptions } from '@/features/subscriptions/detect';
 import type { Txn } from '@/lib/types';
 
 let seq = 0;
@@ -104,43 +103,6 @@ describe('insights', () => {
     expect(budgetStreak(days, '2026-10-26')).toEqual({ current: 2, since: '2026-10-24', best: 3 });
     // An overspent yesterday breaks it, whatever today looks like.
     expect(budgetStreak(days.slice(0, 4), '2026-10-24')).toEqual({ current: 0, since: null, best: 3 });
-  });
-});
-
-describe('subscription detection', () => {
-  const now = at(30);
-
-  it('finds a monthly charge with the same amount and predicts renewal', () => {
-    const subs = detectSubscriptions(
-      [
-        txn({ amount: 649_00, merchant: 'Netflix', occurredAt: new Date(2026, 7, 5).getTime() }),
-        txn({ amount: 649_00, merchant: 'Netflix', occurredAt: new Date(2026, 8, 5).getTime() }),
-        txn({ amount: 649_00, merchant: 'Netflix', occurredAt: new Date(2026, 9, 5).getTime() }),
-        txn({ amount: 250_00, merchant: 'Starbucks', occurredAt: new Date(2026, 9, 6).getTime() }),
-        txn({ amount: 180_00, merchant: 'Starbucks', occurredAt: new Date(2026, 9, 8).getTime() }),
-      ],
-      now,
-    );
-    expect(subs).toHaveLength(1);
-    expect(subs[0]).toMatchObject({ merchant: 'Netflix', cycle: 'monthly', count: 3, monthlyCost: 649_00 });
-    expect(new Date(subs[0].nextDate).getMonth()).toBe(10);
-    expect(new Date(subs[0].nextDate).getDate()).toBe(5);
-  });
-
-  it('drops a subscription that stopped recurring', () => {
-    const subs = detectSubscriptions(
-      [
-        txn({ amount: 119_00, merchant: 'Spotify', occurredAt: new Date(2026, 3, 1).getTime() }),
-        txn({ amount: 119_00, merchant: 'Spotify', occurredAt: new Date(2026, 4, 1).getTime() }),
-      ],
-      now,
-    );
-    expect(subs).toHaveLength(0);
-  });
-
-  it('flags a known subscription merchant seen once as likely', () => {
-    const subs = detectSubscriptions([txn({ amount: 1_999_00, merchant: 'Claude', occurredAt: at(12) })], now);
-    expect(subs[0]).toMatchObject({ confidence: 'likely', category: 'subscriptions' });
   });
 });
 

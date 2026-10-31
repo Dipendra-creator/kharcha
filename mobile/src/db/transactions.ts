@@ -146,24 +146,6 @@ export function insertMany(inputs: NewTxn[]): Txn[] {
   return inserted;
 }
 
-/**
- * Writes rows exactly as given (server pull / restore). A local copy of the
- * same SMS/email under another id (e.g. re-read after a reinstall) gives way
- * to the incoming row.
- */
-export function upsertMany(txns: Txn[]): void {
-  if (!txns.length) return;
-  db.withTransactionSync(() => {
-    for (const t of txns) {
-      if (t.sourceRef) {
-        db.runSync('DELETE FROM transactions WHERE source = ? AND source_ref = ? AND id != ?', t.source, t.sourceRef, t.id);
-      }
-      db.runSync(UPSERT, toParams(t));
-    }
-  });
-  bumpData();
-}
-
 export function updateTxn(id: string, patch: Partial<Omit<Txn, 'id' | 'createdAt'>>): Txn | null {
   const cur = getTxn(id);
   if (!cur) return null;
@@ -173,7 +155,7 @@ export function updateTxn(id: string, patch: Partial<Omit<Txn, 'id' | 'createdAt
   return next;
 }
 
-/** Soft delete so the deletion can sync to the server. */
+/** Soft delete, so an SMS re-read on the next sync isn't added again. */
 export function deleteTxn(id: string): void {
   updateTxn(id, { deleted: true });
 }
@@ -293,16 +275,6 @@ export function countReview(): number {
 
 export function listAll(): Txn[] {
   return db.getAllSync<Row>('SELECT * FROM transactions ORDER BY occurred_at DESC').map(fromRow);
-}
-
-export function listUnsynced(): Txn[] {
-  return db.getAllSync<Row>('SELECT * FROM transactions WHERE synced_at IS NULL').map(fromRow);
-}
-
-export function markSynced(ids: string[], at = Date.now()): void {
-  db.withTransactionSync(() => {
-    for (const id of ids) db.runSync('UPDATE transactions SET synced_at = ? WHERE id = ?', at, id);
-  });
 }
 
 /**
