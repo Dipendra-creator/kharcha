@@ -15,6 +15,8 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { migrate } from '@/db/client';
 import { refreshServerMode } from '@/features/account/session';
 import { configureNotifications } from '@/features/notifications/nightly';
+import { useRenewalReminders } from '@/features/notifications/renewals';
+import { useSeenSpends } from '@/features/notifications/spend-alerts';
 import { useNightlyScheduler, useNotificationRouting } from '@/features/notifications/use-nightly';
 import { applyBackgroundSync } from '@/features/sync/background';
 import { registerSources } from '@/features/sync/sources';
@@ -56,6 +58,8 @@ function AppNavigator() {
   const onboarded = useApp((s) => s.onboarded);
   const backgroundSync = useApp((s) => s.settings.backgroundSync);
   useNightlyScheduler();
+  useRenewalReminders();
+  useSeenSpends();
   useNotificationRouting();
   useEffect(() => {
     applyBackgroundSync(onboarded && backgroundSync).catch(() => {});
@@ -88,6 +92,7 @@ function AppNavigator() {
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="add" options={sheet} />
           <Stack.Screen name="review" />
+          <Stack.Screen name="transactions" />
           <Stack.Screen name="report/[date]" options={{ presentation: 'fullScreenModal', animation: 'fade_from_bottom' }} />
           <Stack.Screen name="settings/budget" />
           <Stack.Screen name="settings/sources" />

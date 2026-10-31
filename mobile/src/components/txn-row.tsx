@@ -9,6 +9,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { isFixedCostNote } from '@/features/budget/fixed-costs';
 import { categoryMeta, methodLabel } from '@/lib/categories';
 import { formatTime } from '@/lib/dates';
 import { formatINR, spokenINR } from '@/lib/money';
@@ -57,8 +58,9 @@ function monogram(name: string): string {
 export function TxnRow({ txn, onPress, showDate }: { txn: Txn; onPress?: () => void; showDate?: boolean }) {
   const { c } = useTheme();
   const incoming = txn.type !== 'debit';
+  const fixedCost = txn.excluded && isFixedCostNote(txn.note);
   const sub = [
-    categoryMeta[txn.category].label,
+    txn.type === 'refund' ? 'Refund' : categoryMeta[txn.category].label,
     showDate ? new Date(txn.occurredAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : null,
     formatTime(txn.occurredAt),
     txn.method ? methodLabel[txn.method] : null,
@@ -68,7 +70,7 @@ export function TxnRow({ txn, onPress, showDate }: { txn: Txn; onPress?: () => v
   const amount = formatINR(incoming ? txn.amount : -txn.amount, { signed: incoming });
   const a11y = `${txn.merchant}, ${incoming ? 'received' : 'spent'} ${spokenINR(txn.amount)}, ${sub}${
     txn.status === 'review' ? ', needs review' : ''
-  }${txn.excluded ? ', not counted in budget' : ''}`;
+  }${fixedCost ? ', a fixed cost already in your budget' : txn.excluded ? ', not counted in budget' : ''}`;
 
   return (
     <PressableScale
@@ -93,7 +95,7 @@ export function TxnRow({ txn, onPress, showDate }: { txn: Txn; onPress?: () => v
           ) : null}
         </View>
         <AppText variant="caption" color="textMuted" numberOfLines={1}>
-          {txn.excluded ? `${sub} · not counted` : sub}
+          {fixedCost ? `${sub} · fixed cost` : txn.excluded ? `${sub} · not counted` : sub}
         </AppText>
       </View>
       <AppText

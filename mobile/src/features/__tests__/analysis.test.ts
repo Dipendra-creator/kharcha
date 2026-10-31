@@ -1,4 +1,11 @@
-import { categoryBreakdown, hourlySpend, impulseWindow, rangeSummary, topMerchants } from '@/features/insights/insights';
+import {
+  budgetStreak,
+  categoryBreakdown,
+  hourlySpend,
+  impulseWindow,
+  rangeSummary,
+  topMerchants,
+} from '@/features/insights/insights';
 import { buildReport } from '@/features/report/report';
 import { roastBand, ruleVerdict } from '@/features/roast/roast';
 import { detectSubscriptions } from '@/features/subscriptions/detect';
@@ -89,6 +96,14 @@ describe('insights', () => {
       { future: true, base: 0, budget: 0, spent: 0 },
     ]);
     expect(s).toEqual({ spent: 6_500_00, saved: -500_00, underBudget: 2, elapsed: 3 });
+  });
+
+  it('counts the under-budget streak up to yesterday', () => {
+    const day = (d: number, spent: number) => ({ key: `2026-10-${String(d).padStart(2, '0')}`, spent, budget: 2_000_00 });
+    const days = [day(20, 500_00), day(21, 1_000_00), day(22, 1_900_00), day(23, 2_500_00), day(24, 0), day(25, 2_000_00), day(26, 9_000_00)];
+    expect(budgetStreak(days, '2026-10-26')).toEqual({ current: 2, since: '2026-10-24', best: 3 });
+    // An overspent yesterday breaks it, whatever today looks like.
+    expect(budgetStreak(days.slice(0, 4), '2026-10-24')).toEqual({ current: 0, since: null, best: 3 });
   });
 });
 

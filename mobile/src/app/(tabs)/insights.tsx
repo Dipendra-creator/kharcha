@@ -1,6 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { router } from 'expo-router';
 import { useRef, useState, type ReactNode } from 'react';
-import { View, type LayoutChangeEvent } from 'react-native';
+import { Pressable, View, type LayoutChangeEvent } from 'react-native';
 import Animated, { FadeInDown, useReducedMotion } from 'react-native-reanimated';
 
 import { DailyBars, Donut, HourBars, ProgressBar } from '@/components/charts';
@@ -166,7 +167,18 @@ export default function InsightsScreen() {
             <Donut data={cats} centerLabel="This cycle" centerValue={formatINR(totalSpent(txns), { compact: true, decimals: 0 })} size={148} stroke={20} />
             <View style={{ flex: 1, gap: spacing.sm }}>
               {cats.slice(0, 5).map((cat) => (
-                <View key={cat.category} style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+                <Pressable
+                  key={cat.category}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${categoryMeta[cat.category].label}, ${Math.round(cat.share * 100)}%. Show these spends`}
+                  onPress={() => router.push({ pathname: '/transactions', params: { category: cat.category, period: 'cycle' } })}
+                  style={({ pressed }) => ({
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: spacing.sm,
+                    minHeight: 28,
+                    opacity: pressed ? 0.6 : 1,
+                  })}>
                   <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: category[cat.category] }} />
                   <AppText variant="caption" style={{ flex: 1 }} numberOfLines={1}>
                     {categoryMeta[cat.category].label}
@@ -174,31 +186,33 @@ export default function InsightsScreen() {
                   <AppText variant="caption" color="textMuted" tabular>
                     {Math.round(cat.share * 100)}%
                   </AppText>
-                </View>
+                </Pressable>
               ))}
             </View>
           </View>
         )}
       </Card>
 
-      <SectionTitle title="Top merchants" />
+      <SectionTitle title="Top merchants" action={{ label: 'All spends', onPress: () => router.push('/transactions') }} />
       <Card padded={false} style={{ paddingHorizontal: spacing.lg, paddingVertical: spacing.xs }}>
         {merchants.length === 0 ? (
           <EmptyState icon="storefront-outline" title="No merchants yet" body="Your most-paid merchants this cycle will show up here." />
         ) : (
           merchants.map((m, i) => (
-            <View
+            <Pressable
               key={m.merchant}
-              accessible
-              accessibilityLabel={`${m.merchant}, ${m.count} payments, ${formatINR(m.amount)}`}
-              style={{
+              accessibilityRole="button"
+              accessibilityLabel={`${m.merchant}, ${m.count} ${m.count === 1 ? 'payment' : 'payments'}, ${formatINR(m.amount, { decimals: 0 })}. Show every payment`}
+              onPress={() => router.push({ pathname: '/transactions', params: { q: m.merchant, period: 'all' } })}
+              style={({ pressed }) => ({
                 flexDirection: 'row',
                 alignItems: 'center',
                 gap: spacing.md,
                 paddingVertical: spacing.md,
                 borderBottomWidth: i === merchants.length - 1 ? 0 : 1,
                 borderBottomColor: c.border,
-              }}>
+                opacity: pressed ? 0.6 : 1,
+              })}>
               <MerchantAvatar merchant={m.merchant} category={m.category} size={40} />
               <View style={{ flex: 1 }}>
                 <AppText variant="body" weight="semibold" numberOfLines={1}>
@@ -209,7 +223,8 @@ export default function InsightsScreen() {
                 </AppText>
               </View>
               <Money paise={m.amount} variant="body" decimals={0} />
-            </View>
+              <Ionicons name="chevron-forward" size={16} color={c.textMuted} />
+            </Pressable>
           ))
         )}
       </Card>

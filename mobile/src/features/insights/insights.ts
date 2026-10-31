@@ -1,4 +1,5 @@
-import { countsAsSpend, type Category, type Txn } from '@/lib/types';
+import { netRefunds } from '@/features/budget/refunds';
+import type { Category, Txn } from '@/lib/types';
 
 type SpendTxn = Pick<
   Txn,
@@ -9,7 +10,8 @@ export type CategoryShare = { category: Category; amount: number; share: number 
 export type MerchantTotal = { merchant: string; category: Category; amount: number; count: number };
 export type ImpulseWindow = { startHour: number; endHour: number; share: number; count: number; lateNight: boolean };
 
-const spends = <T extends SpendTxn>(txns: T[]) => txns.filter(countsAsSpend);
+/** Spends at their amounts after refunds; fully refunded ones are gone. */
+const spends = <T extends SpendTxn>(txns: T[]) => netRefunds(txns).spends;
 
 export function totalSpent(txns: SpendTxn[]): number {
   return spends(txns).reduce((s, t) => s + t.amount, 0);
@@ -57,6 +59,37 @@ export function rangeSummary(days: { future: boolean; spent: number; budget: num
     underBudget: elapsed.filter((d) => d.spent <= d.budget).length,
     elapsed: elapsed.length,
   };
+}
+
+export type Streak = {
+  /** Days in a row at or under budget, ending yesterday. */
+  current: number;
+  /** First day of the current run. */
+  since: string | null;
+  /** Longest run in the days given. */
+  best: number;
+};
+
+/**
+ * Under-budget streak over consecutive days (oldest first). Only finished days
+ * count: today is still open, so it joins the streak tomorrow.
+ */
+export function budgetStreak(days: { key: string; spent: number; budget: number }[], todayKey: string): Streak {
+  let run = 0;
+  let best = 0;
+  let since: string | null = null;
+  for (const d of days) {
+    if (d.key >= todayKey) break;
+    if (d.spent <= d.budget) {
+      if (run === 0) since = d.key;
+      run += 1;
+      best = Math.max(best, run);
+    } else {
+      run = 0;
+      since = null;
+    }
+  }
+  return { current: run, since, best };
 }
 
 const isLateHour = (h: number) => h >= 22 || h < 4;

@@ -3,7 +3,14 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 export type FixedCostKind = 'rent' | 'emi' | 'sip' | 'insurance' | 'other';
-export type FixedCost = { id: string; label: string; amount: number; kind: FixedCostKind };
+export type FixedCost = {
+  id: string;
+  label: string;
+  amount: number;
+  kind: FixedCostKind;
+  /** Lower-cased merchant the user confirmed this is paid to; its payments are then marked automatically. */
+  payee?: string;
+};
 export type RoastIntensity = 'off' | 'mild' | 'savage';
 export type ThemePref = 'system' | 'dark' | 'light';
 
@@ -29,6 +36,10 @@ export type Settings = {
   backgroundSync: boolean;
   /** Ask the server LLM for a fresh verdict line (falls back to on-device lines). */
   aiVerdicts: boolean;
+  /** Notify after a background sync finds new spends, with what's left today. */
+  spendAlerts: boolean;
+  /** Notify the day before a detected subscription renews. */
+  renewalReminders: boolean;
 };
 
 export type SyncState = {
@@ -42,6 +53,8 @@ export type SyncState = {
   /** The server runs without sign-in (KHARCHA_AUTH_MODE=none); learned from /healthz. */
   serverOpen: boolean;
   gmail: { connected: boolean; email: string | null };
+  /** Rows created up to here have been seen (in the app or in a spend alert); null until the first check. */
+  alertCursor: number | null;
 };
 
 /** Signed-in server account. The session token itself is in SecureStore (features/account/session). */
@@ -56,7 +69,10 @@ type State = {
   settings: Settings;
   sync: SyncState;
   account: Account;
+  /** Transactions the user said are not a fixed cost, so they aren't asked about again. */
+  fixedCostDismissed: string[];
   setProfile: (patch: Partial<Profile>) => void;
+  dismissFixedCost: (txnId: string) => void;
   setSettings: (patch: Partial<Settings>) => void;
   setSync: (patch: Partial<SyncState>) => void;
   setAccount: (account: Account) => void;
@@ -78,9 +94,19 @@ export const DEFAULT_SETTINGS: Settings = {
   notificationFallback: false,
   backgroundSync: true,
   aiVerdicts: true,
+  spendAlerts: true,
+  renewalReminders: true,
 };
 
-const DEFAULT_SYNC: SyncState = { lastSyncAt: null, smsCursor: null, notifCursor: null, serverCursor: 0, serverOpen: false, gmail: { connected: false, email: null } };
+const DEFAULT_SYNC: SyncState = {
+  lastSyncAt: null,
+  smsCursor: null,
+  notifCursor: null,
+  serverCursor: 0,
+  serverOpen: false,
+  gmail: { connected: false, email: null },
+  alertCursor: null,
+};
 
 // The kv-store has a synchronous API, so the store hydrates before the first render.
 const kvStorage = createJSONStorage(() => ({
@@ -101,7 +127,10 @@ export const useApp = create<State>()(
       settings: DEFAULT_SETTINGS,
       sync: DEFAULT_SYNC,
       account: null,
+      fixedCostDismissed: [],
       setProfile: (patch) => set((s) => ({ profile: { ...s.profile, ...patch } })),
+      // Only the latest few matter: candidates come from the last month.
+      dismissFixedCost: (txnId) => set((s) => ({ fixedCostDismissed: [txnId, ...s.fixedCostDismissed].slice(0, 50) })),
       setSettings: (patch) => set((s) => ({ settings: { ...s.settings, ...patch } })),
       setSync: (patch) => set((s) => ({ sync: { ...s.sync, ...patch } })),
       setAccount: (account) => set({ account }),
@@ -116,6 +145,7 @@ export const useApp = create<State>()(
           settings: DEFAULT_SETTINGS,
           sync: DEFAULT_SYNC,
           account: null,
+          fixedCostDismissed: [],
         }),
     }),
     {
@@ -128,7 +158,7 @@ export const useApp = create<State>()(
         if (version < 2 && p.onboarded && !p.trackingStart) p.trackingStart = Date.now();
         return p as State;
       },
-      partialize: ({ onboarded, trackingStart, consentAt, profile, settings, sync, account }) => ({
+      partialize: ({ onboarded, trackingStart, consentAt, profile, settings, sync, account, fixedCostDismissed }) => ({
         onboarded,
         trackingStart,
         consentAt,
@@ -136,6 +166,7 @@ export const useApp = create<State>()(
         settings,
         sync,
         account,
+        fixedCostDismissed,
       }),
       merge: (persisted, current) => {
         const p = (persisted ?? {}) as Partial<State>;

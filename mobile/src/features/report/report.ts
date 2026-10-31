@@ -1,11 +1,12 @@
 import type { BudgetState, DayBudget } from '@/features/budget/budget';
 import { budgetState } from '@/features/budget/budget';
+import { netRefunds } from '@/features/budget/refunds';
 import { categoryBreakdown, type CategoryShare } from '@/features/insights/insights';
 import { ruleVerdict } from '@/features/roast/roast';
 import { categoryMeta } from '@/lib/categories';
 import { isQuickOrder } from '@/lib/merchants';
 import { formatINR } from '@/lib/money';
-import { countsAsSpend, type Txn } from '@/lib/types';
+import type { Txn } from '@/lib/types';
 import type { RoastIntensity } from '@/store/app-store';
 
 export type NightlyReport = {
@@ -33,7 +34,8 @@ export function buildReport(opts: {
   savedVerdict?: string | null;
 }): NightlyReport {
   const { day, txns, intensity, tomorrowBudget, rollover, savedVerdict } = opts;
-  const spends = txns.filter(countsAsSpend);
+  // A payment reversed the same day (failed recharge) is not the day's biggest spend.
+  const { spends } = netRefunds(txns);
   const biggest = spends.reduce<Txn | null>((m, t) => (!m || t.amount > m.amount ? t : m), null);
   const quickOrders = spends.filter((t) => isQuickOrder(t.merchant, t.category)).length;
   const breakdown = categoryBreakdown(spends);

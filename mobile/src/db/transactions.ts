@@ -1,7 +1,9 @@
 import { randomUUID } from 'expo-crypto';
 
+import { REFUND_WINDOW, spendByDay } from '@/features/budget/refunds';
 import { dayKey, fromDayKey, type DayKey } from '@/lib/dates';
-import { countsAsSpend, type NewTxn, type Txn } from '@/lib/types';
+import { parseAmount } from '@/lib/money';
+import type { Category, NewTxn, Txn } from '@/lib/types';
 import { bumpData } from '@/store/app-store';
 
 import { db } from './client';
@@ -205,6 +207,65 @@ export function listDay(key: DayKey): Txn[] {
   return listBetween(start.getTime(), end.getTime());
 }
 
+export type TxnFilter = {
+  /** Merchant or note text; a number also matches amounts in that rupee (450 → ₹450.00–₹450.99). */
+  query?: string;
+  category?: Category | null;
+  kind?: 'all' | 'spent' | 'received';
+  from?: number;
+  to?: number;
+  limit?: number;
+};
+
+/** Live rows matching a filter, newest first. */
+export function searchTxns(f: TxnFilter): Txn[] {
+  const where = [`deleted = 0`, `merged_into IS NULL`, `status != 'ignored'`];
+  const params: (string | number)[] = [];
+  if (f.from != null) {
+    where.push('occurred_at >= ?');
+    params.push(f.from);
+  }
+  if (f.to != null) {
+    where.push('occurred_at < ?');
+    params.push(f.to);
+  }
+  if (f.category) {
+    where.push('category = ?');
+    params.push(f.category);
+  }
+  if (f.kind === 'spent') where.push(`type = 'debit'`);
+  if (f.kind === 'received') where.push(`type != 'debit'`);
+  const q = f.query?.trim();
+  if (q) {
+    const like = `%${q.replace(/[\\%_]/g, (ch) => `\\${ch}`)}%`;
+    const text = `(merchant LIKE ? ESCAPE '\\' OR note LIKE ? ESCAPE '\\')`;
+    const rupees = parseAmount(q);
+    if (rupees != null) {
+      where.push(`(${text} OR (amount >= ? AND amount < ?))`);
+      params.push(like, like, rupees, rupees + 1_00);
+    } else {
+      where.push(text);
+      params.push(like, like);
+    }
+  }
+  params.push(f.limit ?? 500);
+  return db
+    .getAllSync<Row>(`SELECT * FROM transactions WHERE ${where.join(' AND ')} ORDER BY occurred_at DESC LIMIT ?`, ...params)
+    .map(fromRow);
+}
+
+/** Live rows added to this phone after `since` (by insert time, not when the payment happened). */
+export function listCreatedSince(since: number): Txn[] {
+  return db
+    .getAllSync<Row>(
+      `SELECT * FROM transactions
+       WHERE created_at > ? AND deleted = 0 AND merged_into IS NULL AND status != 'ignored'
+       ORDER BY occurred_at DESC`,
+      since,
+    )
+    .map(fromRow);
+}
+
 /** When the oldest live transaction happened, or null with none. */
 export function earliestTxnAt(): number | null {
   return (
@@ -244,13 +305,15 @@ export function markSynced(ids: string[], at = Date.now()): void {
   });
 }
 
-/** Daily spend keyed by local day, for the budget engine. */
+/**
+ * Daily spend keyed by local day, for the budget engine, net of refunds. Rows
+ * a refund window either side are read too: a payment just before `from` can
+ * be refunded inside it, and a refund after `to` lowers a day inside it.
+ */
 export function spentByDay(from: number, to: number): Record<DayKey, number> {
+  const all = spendByDay(listBetween(from - REFUND_WINDOW, to + REFUND_WINDOW));
+  const [first, last] = [dayKey(from), dayKey(to - 1)];
   const out: Record<DayKey, number> = {};
-  for (const t of listBetween(from, to)) {
-    if (!countsAsSpend(t)) continue;
-    const k = dayKey(t.occurredAt);
-    out[k] = (out[k] ?? 0) + t.amount;
-  }
+  for (const [k, v] of Object.entries(all)) if (k >= first && k <= last) out[k] = v;
   return out;
 }

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { AppState } from 'react-native';
 
-import { computeCycleBudget, type CycleBudget, type DayBudget } from '@/features/budget/budget';
+import { computeCycleBudget, type BudgetInput, type CycleBudget, type DayBudget } from '@/features/budget/budget';
 import { addDays, cycleFor, dayKey, fromDayKey, startOfDay } from '@/lib/dates';
 import { useApp, useDataVersion } from '@/store/app-store';
 
@@ -43,10 +43,10 @@ export function useNow(intervalMs = 60_000): Date {
   return now;
 }
 
-export function useBudgetInput() {
-  const profile = useApp((s) => s.profile);
-  const settings = useApp((s) => s.settings);
-  const trackingStart = useApp((s) => s.trackingStart);
+type StoreState = ReturnType<typeof useApp.getState>;
+
+/** The budget engine's input from app state; outside React, pass `useApp.getState()`. */
+export function budgetInputOf({ profile, settings, trackingStart }: Pick<StoreState, 'profile' | 'settings' | 'trackingStart'>): BudgetInput {
   return {
     trackingStart,
     salary: profile.salary,
@@ -55,6 +55,13 @@ export function useBudgetInput() {
     rollover: settings.rollover,
     redistributeOverspend: settings.redistributeOverspend,
   };
+}
+
+export function useBudgetInput(): BudgetInput {
+  const profile = useApp((s) => s.profile);
+  const settings = useApp((s) => s.settings);
+  const trackingStart = useApp((s) => s.trackingStart);
+  return budgetInputOf({ profile, settings, trackingStart });
 }
 
 /** The budget for the salary cycle containing `at` (default: now). */

@@ -2,6 +2,7 @@ import { create } from 'zustand';
 
 import { saveSubscriptions } from '@/db/meta';
 import { listBetween } from '@/db/transactions';
+import { markFixedCosts } from '@/features/budget/fixed-cost-actions';
 import { detectSubscriptions } from '@/features/subscriptions/detect';
 import { bumpData, useApp } from '@/store/app-store';
 
@@ -52,6 +53,7 @@ export function syncNow(): Promise<SyncSummary> {
         summary.errors.push(e instanceof Error ? e.message : String(e));
       }
     }
+    markFixedCosts();
     refreshSubscriptions();
     useApp.getState().setSync({ lastSyncAt: Date.now() });
     return summary;

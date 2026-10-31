@@ -85,8 +85,26 @@ export default function SettingsScreen() {
         </View>
       </Card>
 
+      <SectionTitle title="Alerts" />
+      <Card padded={false} style={{ paddingHorizontal: spacing.lg }}>
+        <Row
+          icon="notifications-outline"
+          title="Spend alerts"
+          subtitle="When new spends are found in the background, with what's left today"
+          toggle={{ value: settings.spendAlerts, onChange: (spendAlerts) => setSettings({ spendAlerts }) }}
+        />
+        <Row
+          icon="repeat-outline"
+          title="Renewal reminders"
+          subtitle="The day before a subscription charges you"
+          toggle={{ value: settings.renewalReminders, onChange: (renewalReminders) => setSettings({ renewalReminders }) }}
+          last
+        />
+      </Card>
+
       <SectionTitle title="Data" />
       <Card padded={false} style={{ paddingHorizontal: spacing.lg }}>
+        <Row icon="list-outline" title="All transactions" subtitle="Search by merchant, amount or category" onPress={() => router.push('/transactions')} />
         <Row icon="git-network-outline" title="Connected sources" value={sources} onPress={() => router.push('/settings/sources')} />
         <Row icon="file-tray-full-outline" title="Review inbox" value={reviewCount ? String(reviewCount) : 'Empty'} onPress={() => router.push('/review')} />
         <Row icon="shield-checkmark-outline" title="Privacy & your data" subtitle="What we read, export, delete everything" onPress={() => router.push('/settings/privacy')} last />

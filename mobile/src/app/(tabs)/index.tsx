@@ -14,6 +14,8 @@ import { Card, EmptyState, PressableScale, SectionTitle } from '@/components/ui'
 import { useCycleBudget, useDbQuery, useNow } from '@/db/hooks';
 import { countReview, listDay } from '@/db/transactions';
 import { budgetState } from '@/features/budget/budget';
+import { FixedCostPrompt } from '@/features/budget/fixed-cost-prompt';
+import { StreakCard } from '@/features/insights/streak-card';
 import { syncNow, useSyncStatus, type SyncSummary } from '@/features/sync/sync';
 import { formatDate, formatHour, relativeTime } from '@/lib/dates';
 import { haptic } from '@/lib/haptics';
@@ -134,6 +136,8 @@ export default function TodayScreen() {
         <Stat label="Days left" value={<AppText variant="heading" tabular>{daysLeft}</AppText>} />
       </View>
 
+      <StreakCard now={now} />
+
       {reviewCount > 0 ? (
         <PressableScale
           accessibilityRole="button"
@@ -155,6 +159,8 @@ export default function TodayScreen() {
           <Ionicons name="chevron-forward" size={18} color={c.textMuted} />
         </PressableScale>
       ) : null}
+
+      <FixedCostPrompt now={now} />
 
       <PressableScale
         accessibilityRole="button"
@@ -185,7 +191,10 @@ export default function TodayScreen() {
         </Card>
       </PressableScale>
 
-      <SectionTitle title={`Today · ${txns.length} ${txns.length === 1 ? 'entry' : 'entries'}`} />
+      <SectionTitle
+        title={`Today · ${txns.length} ${txns.length === 1 ? 'entry' : 'entries'}`}
+        action={{ label: 'See all', onPress: () => router.push('/transactions') }}
+      />
       <Card padded={false} style={{ paddingHorizontal: spacing.lg, paddingVertical: spacing.xs }}>
         {running && txns.length === 0 ? (
           <>

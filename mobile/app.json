@@ -2,7 +2,7 @@
   "expo": {
     "name": "Kharcha",
     "slug": "kharcha",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "kharcha",
@@ -37,7 +37,7 @@
         "android.permission.RECEIVE_SMS",
         "android.permission.SEND_SMS"
       ],
-      "versionCode": 2
+      "versionCode": 3
     },
     "web": {
       "output": "server",
