@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/release-check.sh",
+            "timeout": 30,
+            "statusMessage": "Checking for unreleased app changes"
+          }
+        ]
+      }
+    ]
+  }
+}

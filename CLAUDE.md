@@ -18,7 +18,9 @@ A change to the app (feature, fix, refactor, dependency, config) is finished onl
 5. `cd mobile && scripts/release.sh <notes.md>`. It runs the checks, builds the release APK, refuses one not signed with the Kharcha key, pushes `main`, and creates release `v<version>` with `kharcha-v<version>.apk` and its `.sha256`.
 6. Report the release URL. If any step fails, fix it and run the script again. Never upload an APK by hand.
 
-Changes that touch only `README.md`, `CLAUDE.md` or `docs/` are committed and pushed without a release.
+Changes that touch only `README.md`, `CLAUDE.md`, `docs/`, `.claude/` or `mobile/scripts/` are committed and pushed without a release.
+
+A Stop hook (`.claude/hooks/release-check.sh`, wired in `.claude/settings.json`) enforces this. It won't let Claude finish a turn while app files under `mobile/` are uncommitted, unpushed, or changed since the last `v*` tag. If the work is unfinished or you're waiting on the user, say so and stop; the hook only reminds once per stop.
 
 ## 3. The APK must install on any Android phone
 
